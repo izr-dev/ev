@@ -35,13 +35,31 @@
 
     <!-- Main Content -->
     <main class="max-w-5xl mx-auto px-6 py-12 flex-grow w-full">
-        <div class="text-center max-w-2xl mx-auto mb-12">
-            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-                Pilih Modul Pembelajaran
-            </h2>
-            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
-                Silakan pilih salah satu modul interaktif di bawah ini untuk memulai simulasi dan pembelajaran mendalam.
-            </p>
+        
+        <!-- Hero Section & QR Code Banner -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center mb-12 bg-slate-800/50 border border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-xl">
+            <!-- Teks Pengantar -->
+            <div class="lg:col-span-2 text-center lg:text-left">
+                <span class="inline-block bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+                    Portal Akses Cepat
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+                    Pilih Modul Pembelajaran
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                    Silakan pilih salah satu modul interaktif di bawah ini, atau scan QR code di samping untuk langsung membagikan halaman utama ini ke perangkat peserta.
+                </p>
+            </div>
+
+            <!-- QR Code Card -->
+            <div class="flex flex-col items-center justify-center bg-slate-900/80 border border-slate-700/60 p-4 rounded-2xl shadow-inner text-center">
+                <div class="bg-white p-2.5 rounded-xl shadow-md mb-3">
+                    <!-- Pastikan file qrhome.jpg berada di folder yang sama dengan index.html -->
+                    <img src="qrhome.jpg" alt="QR Code Website" class="w-32 h-32 object-contain rounded-lg">
+                </div>
+                <p class="text-xs font-semibold text-slate-300">Scan untuk Buka di HP</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Akses cepat materi pelatihan</p>
+            </div>
         </div>
 
         <!-- Daftar Kartu Modul (Grid) -->
