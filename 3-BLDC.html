@@ -176,7 +176,7 @@ const pairs=[['U','V'],['U','W'],['V','W'],['V','U'],['W','U'],['W','V']],ax={A:
 let th=0,run=true,dir=1,last=0;
 function secOf(t){return(((Math.round((t+90-330)/60))%6)+6)%6}
 function hall(t){return[0,120,240].map(p=>Math.cos((t-p)*R)>0?1:0).join('')}
-$('#tt').innerHTML+=pairs.map((p,i)=>`<tr id="r${i}"><td>${i+1}</td><td>${hall(sf[i]-90)}</td><td>${p[0]}</td><td>${p[1]}</td><td>${'ABC'.replace(p[0],'').replace(p[1],'')}</td></tr>`).join('');
+$('#tt').innerHTML+=pairs.map((p,i)=>`<tr id="r${i}"><td>${i+1}</td><td>${hall(sf[i]-90)}</td><td>${p[0]}</td><td>${p[1]}</td><td>${'UVW'.replace(p[0],'').replace(p[1],'')}</td></tr>`).join('');
 const NP=4;
 function arc(r1,r2,a1,a2){const p=[];for(let a=a1;a<=a2;a+=4)p.push([r2*Math.cos(a*R),-r2*Math.sin(a*R)]);for(let a=a2;a>=a1;a-=4)p.push([r1*Math.cos(a*R),-r1*Math.sin(a*R)]);return p.map(q=>(150+q[0]).toFixed(1)+','+(150+q[1]).toFixed(1)).join(' ')}
 function draw(){const k=secOf(th),pr=pairs[k],ph=th/NP;let g='<circle cx="150" cy="150" r="128" fill="none" stroke="var(--mut)" stroke-width="7"/><circle cx="150" cy="150" r="108" fill="var(--bd)" opacity=".5"/>';
