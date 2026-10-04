@@ -202,7 +202,7 @@
   <div class="brand">
     <div class="mark">ISC</div>
     <div>
-      <h1>ISC EV Control Console</h1>
+      <h1>ISC EV SMART SIMULATOR AND DIAGNOSTIC</h1>
       <p>Mikrokontroller ESP32-S3 &middot; Mega2560 Pro &middot; Bluetooth Low Energy (BLE)</p>
     </div>
   </div>
@@ -556,6 +556,8 @@ function isConnected() {
 // ================= PARSE DATA (37 byte) =================
 function onDataNotify(event) {
   const dv = event.target.value;
+  // Paket penuh = 37 byte. Dongle/stack BLE lama sering memotong notify jadi 20 byte (MTU default).
+  if (dv.byteLength < 37) { showShortPacket(dv.byteLength); return; }
   const chargerAnalog = dv.getUint16(0, true);
   const espBits = dv.getUint8(2);
   const rfidLen = dv.getUint8(3);
@@ -740,8 +742,20 @@ function updateStatusCards(v) {
   setStatusCard('Bldc', classifyBldc(v.U, v.V, v.W), 'U:' + v.U + ' V:' + v.V + ' W:' + v.W);
 }
 
+let lastShortToastTs = 0;
+function showShortPacket(len) {
+  document.getElementById('megaLinkText').textContent = 'Link Mega: tidak diketahui (paket ' + len + '/37 byte)';
+  document.getElementById('megaLinkDot').style.background = 'var(--warn)';
+  document.getElementById('megaLinkDot').style.boxShadow = 'none';
+  console.warn('Paket BLE terpotong: ' + len + ' dari 37 byte');
+  if (Date.now() - lastShortToastTs > 5000) {
+    lastShortToastTs = Date.now();
+    toast('Paket BLE terpotong (' + len + '/37 byte). Adapter/dongle ini tidak menegosiasi MTU besar.', 'warn');
+  }
+}
+
 function updateMegaLink(online) {
-  document.getElementById('megaLinkText').textContent = 'Link Mega: ' + (online ? 'Online' : 'Offline');
+  document.getElementById('megaLinkText').textContent = 'Link Mega: ' + (online ? 'Online' : 'Offline (dilaporkan ESP)');
   document.getElementById('megaLinkDot').style.background = online ? 'var(--live)' : 'var(--alert)';
   document.getElementById('megaLinkDot').style.boxShadow = online ? '0 0 8px var(--live)' : 'none';
 }
