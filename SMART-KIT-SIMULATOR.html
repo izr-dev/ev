@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISC EV Control Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1316;--panel:#171D22;--panel-2:#1C232A;--border:#2A323A;--text:#E9EDF1;--text-dim:#8B96A1;
+    --live:#43D9A3;--warn:#F2A93B;--alert:#FF5C5C;--data:#4FA3E3;--radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 18% -10%, rgba(79,163,227,0.10), transparent 55%),
+      radial-gradient(circle at 85% 0%, rgba(67,217,163,0.08), transparent 50%),
+      var(--bg);
+    color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;transition:background .6s ease;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  header{
+    display:flex;align-items:center;justify-content:space-between;padding:18px 26px;
+    border-bottom:1px solid var(--border);background:linear-gradient(180deg,#12171B,#0F1316);
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:8px;background:conic-gradient(from 220deg,var(--data),var(--live));
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#0F1316;
+  }
+  .brand h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.3px;text-shadow:0 0 18px rgba(79,163,227,.35);}
+  .brand p{margin:0;font-size:12px;color:var(--text-dim);}
+  .conn-area{display:flex;align-items:center;gap:14px;}
+  .status-pill{
+    display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;
+    border:1px solid var(--border);font-size:13px;color:var(--text-dim);background:var(--panel);
+  }
+  .status-dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);}
+  body.connected .status-dot{background:var(--live);box-shadow:0 0 8px var(--live);}
+  body.connected .status-pill{color:var(--live);border-color:rgba(67,217,163,.35);}
+  body.searching .status-dot{background:var(--warn);animation:pulse 1.2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+  button.connect-btn{
+    background:var(--data);color:#08141C;border:none;padding:10px 18px;border-radius:8px;
+    font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;
+  }
+  body.connected button.connect-btn{background:var(--alert);color:#26080A;}
+  button.connect-btn:hover{filter:brightness(1.08);}
+  main{
+    max-width:1280px;margin:0 auto;padding:22px 26px 100px;display:grid;grid-template-columns:repeat(12,1fr);gap:18px;
+    filter:grayscale(0.85) opacity(0.55);transition:filter .6s ease;
+  }
+  body.connected main{filter:none;}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+  .panel h2{
+    margin:0 0 14px;font-size:13px;font-weight:600;color:var(--text-dim);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .panel h2 span.tag{font-size:11px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;}
+  .hero{grid-column:span 12;}
+  .hero-main{display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+  .hero-grid{flex:1;min-width:260px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr 1fr;} .hero-main{flex-direction:column;}}
+  .speed-gauge{
+    --pct:0;width:176px;height:176px;border-radius:50%;flex-shrink:0;
+    background:conic-gradient(var(--live) calc(var(--pct)*1%), rgba(255,255,255,0.06) 0);
+    display:flex;align-items:center;justify-content:center;position:relative;
+    box-shadow:0 0 34px rgba(67,217,163,0.22), inset 0 0 18px rgba(0,0,0,0.55);transition:background .25s linear;
+  }
+  .speed-gauge::before{content:'';position:absolute;inset:10px;border-radius:50%;background:var(--panel);}
+  .speed-gauge-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
+  .speed-gauge-value{font-size:36px;font-weight:600;text-shadow:0 0 16px currentColor;color:var(--live);}
+  .speed-gauge-label{font-size:10px;color:var(--text-dim);letter-spacing:1.5px;margin-top:2px;}
+  .status-card{
+    background:var(--panel-2);border:1px solid var(--border);border-left:4px solid var(--text-dim);
+    border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;transition:border-color .2s,color .2s;
+  }
+  .status-card-label{font-size:12px;color:var(--text-dim);}
+  .status-card-value{font-size:18px;font-weight:600;}
+  .status-card-raw{font-size:11px;color:var(--text-dim);}
+  .status-card.state-live{border-left-color:var(--live);box-shadow:0 0 16px rgba(67,217,163,.08);}
+  .status-card.state-live .status-card-value{color:var(--live);}
+  .status-card.state-warn{border-left-color:var(--warn);}
+  .status-card.state-warn .status-card-value{color:var(--warn);}
+  .status-card.state-alert{border-left-color:var(--alert);box-shadow:0 0 16px rgba(255,92,92,.10);}
+  .status-card.state-alert .status-card-value{color:var(--alert);}
+  .status-card.state-neutral{border-left-color:var(--data);}
+  .status-card.state-neutral .status-card-value{color:var(--data);}
+  .hero-footer{display:flex;justify-content:flex-end;margin-top:14px;}
+  .meter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;}
+  .meter{display:flex;flex-direction:column;gap:5px;}
+  .meter-top{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);}
+  .meter-value{font-family:'IBM Plex Mono',monospace;color:var(--text);}
+  .meter-track{height:7px;border-radius:4px;background:var(--panel-2);overflow:hidden;}
+  .meter-fill{height:100%;background:var(--data);width:0%;transition:width .2s ease;}
+  .badge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .badge{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;
+    background:var(--panel-2);border:1px solid var(--border);font-size:13px;
+  }
+  .badge .led{width:9px;height:9px;border-radius:50%;background:var(--text-dim);}
+  .badge.on .led{background:var(--live);box-shadow:0 0 6px var(--live);}
+  .badge.on{color:var(--live);}
+  .toggle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .toggle-row{
+    display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;
+    background:var(--panel-2);border:1px solid var(--border);font-size:13px;transition:opacity .2s;
+  }
+  .toggle-row.locked{opacity:.45;pointer-events:none;}
+  .auto-tag{
+    display:none;margin-left:8px;font-size:10px;color:var(--warn);border:1px solid var(--warn);
+    padding:1px 6px;border-radius:999px;vertical-align:middle;
+  }
+  .auto-tag.show{display:inline-block;}
+  .switch{
+    position:relative;width:40px;height:22px;border-radius:999px;background:#333d46;cursor:pointer;flex-shrink:0;transition:background .2s;
+  }
+  .switch::after{
+    content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#cfd6dc;transition:transform .2s;
+  }
+  .switch.on{background:var(--live);}
+  .switch.on::after{transform:translateX(18px);background:#08201A;}
+  .charge-modes{display:flex;gap:10px;margin-bottom:14px;}
+  .mode-btn{
+    flex:1;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);
+    font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;
+  }
+  .mode-btn:hover:not(:disabled){border-color:var(--data);color:var(--data);}
+  .mode-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .mode-btn.active{border-color:var(--live);color:var(--live);background:rgba(67,217,163,.08);}
+  .mode-btn.active:disabled{opacity:1;}
+  .charge-status{font-size:13px;color:var(--text-dim);margin-bottom:10px;min-height:18px;}
+  .charge-progress-track{height:10px;border-radius:6px;background:var(--panel-2);overflow:hidden;margin-bottom:6px;}
+  .charge-progress-fill{
+    height:100%;background:linear-gradient(90deg,var(--warn),var(--live));width:0%;transition:width .2s linear;box-shadow:0 0 10px var(--live);
+  }
+  .charge-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:12px;}
+  .ride-toggle-row{
+    display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;
+    background:var(--panel-2);border:1px solid var(--border);font-size:13px;margin-bottom:12px;
+  }
+  .sevenseg-row{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 16px;
+    border-radius:8px;background:#0a0d0f;border:1px solid var(--border);
+  }
+  .sevenseg{font-family:'IBM Plex Mono',monospace;font-size:36px;letter-spacing:4px;color:var(--alert);text-shadow:0 0 12px var(--alert);}
+  .ride-readout-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;}
+  .ride-chip{padding:8px 10px;border-radius:8px;background:var(--panel-2);border:1px solid var(--border);font-size:12px;color:var(--text-dim);}
+  .ride-chip.on{color:var(--live);border-color:rgba(67,217,163,.4);}
+  .ride-note{font-size:11px;color:var(--text-dim);line-height:1.5;margin:0;}
+  .motor-panel{display:flex;flex-direction:column;gap:14px;}
+  .motor-readout{display:flex;justify-content:space-between;align-items:baseline;}
+  .motor-readout .val{font-size:28px;font-family:'IBM Plex Mono',monospace;}
+  .motor-readout .dir{font-size:13px;color:var(--text-dim);}
+  input[type=range]{
+    -webkit-appearance:none;width:100%;height:8px;border-radius:4px;
+    background:linear-gradient(90deg,var(--warn),#333d46 50%,var(--data));outline:none;
+  }
+  input[type=range]:disabled{opacity:.35;}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--text);border:3px solid var(--panel);cursor:pointer;
+  }
+  .motor-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);}
+  .motor-auto-note{
+    font-size:11px;color:var(--warn);background:rgba(242,169,59,.08);border:1px solid rgba(242,169,59,.3);
+    padding:8px 10px;border-radius:8px;display:none;
+  }
+  .stop-btn{
+    align-self:center;padding:8px 22px;border-radius:8px;border:1px solid var(--border);
+    background:var(--panel-2);color:var(--text-dim);cursor:pointer;font-family:inherit;font-size:12px;
+  }
+  .rfid-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:22px 0;}
+  .rfid-uid{font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:2px;color:var(--live);}
+  .rfid-empty{color:var(--text-dim);font-size:13px;}
+  .rfid-hint{font-size:11px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;}
+  #toasts{position:fixed;top:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:50;}
+  .toast{
+    padding:10px 16px;border-radius:8px;background:var(--panel);border:1px solid var(--border);
+    font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.4);animation:fadein .25s ease;
+  }
+  .toast.live{border-color:rgba(67,217,163,.4);color:var(--live);}
+  .toast.alert{border-color:rgba(255,92,92,.4);color:var(--alert);}
+  .toast.warn{border-color:rgba(242,169,59,.4);color:var(--warn);}
+  @keyframes fadein{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+  .span-4{grid-column:span 4;}
+  .span-6{grid-column:span 6;}
+  .span-8{grid-column:span 8;}
+  .span-12{grid-column:span 12;}
+  @media(max-width:900px){
+    .span-4,.span-6,.span-8{grid-column:span 12;}
+    .meter-grid,.badge-grid,.toggle-grid,.ride-readout-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body class="disconnected">
+
+<div id="toasts"></div>
+
+<header>
+  <div class="brand">
+    <div class="mark">ISC</div>
+    <div>
+      <h1>ISC EV Control Console</h1>
+      <p>Mikrokontroller ESP32-S3 &middot; Mega2560 Pro &middot; Bluetooth Low Energy (BLE)</p>
+    </div>
+  </div>
+  <div class="conn-area">
+    <div class="status-pill"><span class="status-dot"></span><span id="statusText">Belum terhubung</span></div>
+    <button class="connect-btn" id="connectBtn">Hubungkan BLE</button>
+  </div>
+</header>
+
+<main>
+
+  <section class="panel hero">
+    <h2>Status Kendaraan Listrik</h2>
+    <div class="hero-main">
+      <div class="speed-gauge" id="speedGaugeRing">
+        <div class="speed-gauge-inner">
+          <div class="speed-gauge-value mono" id="gaugeSpeedVal">0</div>
+          <div class="speed-gauge-label">SPEED SENSOR</div>
+        </div>
+      </div>
+      <div class="hero-grid">
+        <div class="status-card" id="cardCharging">
+          <div class="status-card-label">Charging</div>
+          <div class="status-card-value" id="valCharging">--</div>
+          <div class="status-card-raw mono" id="rawCharging">--</div>
+        </div>
+        <div class="status-card" id="cardBattery">
+          <div class="status-card-label">Kelas Baterai</div>
+          <div class="status-card-value" id="valBattery">--</div>
+          <div class="status-card-raw mono" id="rawBattery">--</div>
+        </div>
+        <div class="status-card" id="cardSpeedMode">
+          <div class="status-card-label">Mode Speed</div>
+          <div class="status-card-value" id="valSpeedMode">--</div>
+          <div class="status-card-raw mono" id="rawSpeedMode">--</div>
+        </div>
+        <div class="status-card" id="cardBldc">
+          <div class="status-card-label">Kelas Motor BLDC</div>
+          <div class="status-card-value" id="valBldc">--</div>
+          <div class="status-card-raw mono" id="rawBldc">--</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-footer">
+      <span class="status-pill">
+        <span class="status-dot" id="megaLinkDot"></span>
+        <span id="megaLinkText">Link Mega: --</span>
+      </span>
+    </div>
+  </section>
+
+  <section class="panel span-8">
+    <h2>Telemetri Analog <span class="tag">raw ADC</span></h2>
+    <div class="meter-grid" id="telemetryGrid"></div>
+  </section>
+
+  <section class="panel span-4">
+    <h2>Input Digital</h2>
+    <div class="badge-grid" id="digitalInputsGrid"></div>
+  </section>
+
+  <section class="panel span-6">
+    <h2>Simulasi Charging <span class="tag" id="chargeStateTag">IDLE</span></h2>
+    <div class="charge-modes">
+      <button class="mode-btn" id="btnFastCharge" disabled>Fast Charge</button>
+      <button class="mode-btn" id="btnSlowCharge" disabled>Slow Charge</button>
+    </div>
+    <div class="rfid-hint" style="margin-bottom:10px;">Mode terdeteksi otomatis dari pembacaan sensor Charger (ESP)</div>
+    <div class="charge-status" id="chargeStatusText">Menunggu charger terhubung.</div>
+    <div class="charge-progress-track"><div class="charge-progress-fill" id="chargeProgressFill"></div></div>
+    <div class="charge-progress-label"><span id="chargePercentLabel">0%</span><span class="rfid-hint">UID valid: 0F 15 F1 48</span></div>
+    <button class="stop-btn" id="btnResetCharge">Reset Simulasi</button>
+  </section>
+
+  <section class="panel span-6">
+    <h2>Mode Berkendara <span class="tag" id="rideModeTag">MANUAL</span></h2>
+    <div class="ride-toggle-row">
+      <span>Auto (ikuti sensor kendaraan)</span>
+      <span class="switch" id="rideAutoToggle"></span>
+    </div>
+    <div class="sevenseg-row">
+      <div>
+        <div class="ride-note">Display 7-segment (simulasi)</div>
+        <div class="ride-note">Batas kecepatan mode: <span id="simSpeedCap">--</span></div>
+      </div>
+      <div class="sevenseg" id="simSpeedDisplay">000</div>
+    </div>
+    <div class="ride-readout-grid">
+      <div class="ride-chip" id="chipIgnition">Ignition: --</div>
+      <div class="ride-chip" id="chipReverse">Reverse: --</div>
+      <div class="ride-chip" id="chipPark">Standside/Park: --</div>
+      <div class="ride-chip" id="chipBrake">Brake: --</div>
+      <div class="ride-chip" id="chipBattery">Baterai: --</div>
+    </div>
+    <p class="ride-note">Saat Auto aktif: output Reverse, Park, Ready &amp; Speed 1/2/3 di Mega, serta kontrol motor, mengikuti sensor kendaraan (Throttle, Reverse SW, Standside, Brake) secara otomatis. Kecepatan motor dibatasi sesuai mode speed (naik/turun bertahap seperti motor sungguhan). Slider motor manual akan nonaktif.</p>
+  </section>
+
+  <section class="panel span-6">
+    <h2>Output ESP32S3 <span class="tag">manual</span></h2>
+    <div class="toggle-grid" id="espOutGrid"></div>
+  </section>
+
+  <section class="panel span-6">
+    <h2>Output Mega2560 <span class="tag">manual</span></h2>
+    <div class="toggle-grid" id="megaOutGrid"></div>
+  </section>
+
+  <section class="panel span-6 motor-panel">
+    <h2>Kontrol Motor (L298N)</h2>
+    <div class="motor-readout">
+      <div class="val mono" id="motorVal">0</div>
+      <div class="dir" id="motorDir">STOP</div>
+    </div>
+    <input type="range" id="motorSlider" min="-255" max="255" value="0">
+    <div class="motor-scale"><span>CCW max</span><span>STOP</span><span>CW max</span></div>
+    <div class="motor-auto-note" id="motorAutoNote">Motor sedang dikendalikan otomatis oleh Mode Berkendara (Auto).</div>
+    <button class="stop-btn" id="motorStopBtn">Stop Motor</button>
+  </section>
+
+  <section class="panel span-6">
+    <h2>RFID RC522</h2>
+    <div class="rfid-box">
+      <div id="rfidUid" class="rfid-empty">Belum ada kartu terbaca</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ================= KONFIGURASI BLE =================
+const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+const CHAR_DATA_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8'; // Notify
+const CHAR_CMD_UUID  = '0000ff01-0000-1000-8000-00805f9b34fb'; // Write
+
+const ESP_OUT_BITS = ['Charging','Finish','Error','Slow','Fast','Buzz','Pay','Ready (ESP)'];
+const MEGA_OUT_BITS = ['One (Batt 1)','Two (Batt 2)','Three (Batt 3)','Four (Batt Full)','Empty (Batt Habis)',
+  'Alarm/Buzzer','Relay','Contactor','Left','Right','Speed 3','Speed 2','Speed 1','Reverse','Park','Ready (Mega)'];
+const DIGITAL_IN_BITS = ['HALL','CAN Head Unit','CAN BMS','Ignition','Reverse SW','Standside','Brake'];
+
+const ESP_BIT_CHARGING=0, ESP_BIT_FINISH=1, ESP_BIT_ERROR=2, ESP_BIT_SLOW=3,
+      ESP_BIT_FAST=4, ESP_BIT_BUZZ=5, ESP_BIT_PAY=6, ESP_BIT_READY=7;
+
+const BIT_ONE=0, BIT_TWO=1, BIT_THREE=2, BIT_FOUR=3, BIT_EMPTY=4, MEGA_BIT_ALM=5,
+      BIT_SPEED3=10, BIT_SPEED2=11, BIT_SPEED1=12, BIT_REVERSE=13, BIT_PARK=14, BIT_READY_MEGA=15;
+const BATTERY_BIT_MASK = (1<<BIT_ONE)|(1<<BIT_TWO)|(1<<BIT_THREE)|(1<<BIT_FOUR)|(1<<BIT_EMPTY);
+
+const AUTO_MEGA_BATTERY = [BIT_ONE, BIT_TWO, BIT_THREE, BIT_FOUR, BIT_EMPTY];
+const AUTO_MEGA_RIDE = [BIT_SPEED3, BIT_SPEED2, BIT_SPEED1, BIT_REVERSE, BIT_PARK, BIT_READY_MEGA];
+
+const DIN_BIT_HALL=0, DIN_BIT_CANHU=1, DIN_BIT_CANBMS=2, DIN_BIT_IGN=3,
+      DIN_BIT_REV=4, DIN_BIT_STD=5, DIN_BIT_BRK=6;
+
+const VALID_CARD_HEX = '0F15F148';
+
+const CHARGE_TIMING = {
+  fast: { total: 10000, seg1: 4000 },
+  slow: { total: 20000, seg1: 8000 },
+};
+
+// ---- Baterai kosong: LED berkedip + buzzer Mega ----
+const EMPTY_BELOW_PERCENT = 25;   // di bawah ini indikator "Empty" menyala (sama dgn batteryBitsFromPercent)
+const BLINK_HALF_MS = 500;        // LED Empty: 500 ms nyala / 500 ms mati
+const ALARM_BEEP_MS = 200;        // lama bunyi buzzer
+const ALARM_SILENT_MS = 5000;     // jeda sunyi antar bunyi (ubah di sini untuk memperpanjang/memperpendek)
+const ALARM_CYCLE_MS = ALARM_BEEP_MS + ALARM_SILENT_MS;
+const ONE_BAR_BELOW_PERCENT = 50; // indikator tinggal 1 batang -> kecepatan dibatasi seperti Speed 1
+
+// (1) Charger masih terdeteksi Slow / Fast / Error -> Ready Mega mati & motor tidak bisa jalan
+function chargerBlocksRide(v) {
+  const c = classifyCharging(v);
+  return c.label === 'Fast Charging' || c.label === 'Slow Charging' || c.state === 'alert';
+}
+
+// ---- Simulasi kecepatan motor ----
+// Angka = tampilan seven segment pada throttle maksimum di tiap mode speed.
+const SPEED_CAP = { 1: 60, 2: 90, 3: 120 };  // ECO / NORMAL / SPORT
+const REVERSE_CAP = 20;                      // batas saat mundur
+const SPORT_MAX = 120;                       // acuan skala PWM motor (120 -> 255)
+const ACCEL_RATE = 24;                       // angka/detik saat menambah gas
+const COAST_DECEL = 12;                      // angka/detik saat gas dilepas
+const BRAKE_DECEL = 50;                      // angka/detik saat rem / standside / tidak aman
+// ASUMSI: firmware Mega menerima perintah target=3 (nilai 0..255) untuk angka seven segment.
+// Ubah CMD_TARGET_DISPLAY / format sesuai firmware Anda.
+const CMD_TARGET_DISPLAY = 3;
+
+const TELEMETRY = [
+  {key:'TH',label:'Throttle',max:1023},
+  {key:'SPD',label:'Speed',max:1023},
+  {key:'V5',label:'5V Rail',max:1023},
+  {key:'LOC',label:'Lock',max:1023},
+  {key:'REG',label:'Regenerative',max:1023},
+  {key:'W',label:'Motor W',max:1023},
+  {key:'V',label:'Motor V',max:1023},
+  {key:'U',label:'Motor U',max:1023},
+  {key:'BATTMINUS',label:'Batt -',max:1023},
+  {key:'BATTPLUS',label:'Batt +',max:1023},
+  {key:'CHARGER',label:'Charger (ESP)',max:4095},
+];
+
+// ================= STATE =================
+let device, server, dataChar, cmdChar;
+let espOutputBits = 0;
+let megaOutputBits = 0;
+let motorValue = 0;
+
+// Notify dari firmware bisa basi sesaat setelah kita kirim perintah; abaikan 500 ms setelah kirim.
+let lastEspSendTs = -1e9, lastMegaSendTs = -1e9;
+let initialReadySent = false;   // ESP Ready dinyalakan sekali saat unit pertama nyala (data pertama diterima)
+
+let batteryPercent = 0;
+let lastDrainTs = null;
+let ignNow = false;
+
+// -- alarm baterai habis + kedip LED Empty (dijalankan megaEngineTick) --
+let battEmptyAlarmActive = false;
+let battBlinkOn = true;
+let alarmBeepOn = false;
+
+let chargeState = 'IDLE';      // IDLE | WAIT_CARD | CHARGING | DONE | ERROR
+let chargeMode = null;
+let chargeStartTs = 0;
+let chargeStartPercent = 0;
+let chargePercent = 0;
+let chargeTimer = null;
+let lastProcessedRfidHex = '';
+
+let chargerAlarmActive = false;
+let chargerAlarmTimer = null;
+
+let rideAutoMode = false;
+let lastAutoMotorCmd = null;
+let rideInputs = null;          // data sensor terakhir untuk rideTick
+let simSpeed = 0;               // kecepatan simulasi (angka seven segment, desimal)
+let lastSpeedCap = SPEED_CAP[1];
+let effSpeedCap = SPEED_CAP[1], battLimitedNow = false;
+let lastDisplaySent = null;
+let lastRideTickTs = null;
+
+// ================= UI BUILD =================
+function buildTelemetryUI() {
+  const grid = document.getElementById('telemetryGrid');
+  TELEMETRY.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'meter';
+    el.innerHTML = `
+      <div class="meter-top"><span>${t.label}</span><span class="meter-value" id="val_${t.key}">--</span></div>
+      <div class="meter-track"><div class="meter-fill" id="bar_${t.key}"></div></div>`;
+    grid.appendChild(el);
+  });
+}
+
+function buildDigitalInputsUI() {
+  const grid = document.getElementById('digitalInputsGrid');
+  DIGITAL_IN_BITS.forEach((label, i) => {
+    const el = document.createElement('div');
+    el.className = 'badge';
+    el.id = 'din_' + i;
+    el.innerHTML = `<span class="led"></span><span>${label}</span>`;
+    grid.appendChild(el);
+  });
+}
+
+function buildToggleUI(containerId, labels, target) {
+  const grid = document.getElementById(containerId);
+  labels.forEach((label, i) => {
+    const row = document.createElement('div');
+    row.className = 'toggle-row';
+    row.innerHTML = `<span>${label}<span class="auto-tag" id="${containerId}_${i}_tag">AUTO</span></span><span class="switch" id="${containerId}_${i}"></span>`;
+    row.querySelector('.switch').addEventListener('click', () => {
+      toggleOutputBit(target, i);
+    });
+    grid.appendChild(row);
+  });
+}
+
+buildTelemetryUI();
+buildDigitalInputsUI();
+buildToggleUI('espOutGrid', ESP_OUT_BITS, 'esp');
+buildToggleUI('megaOutGrid', MEGA_OUT_BITS, 'mega');
+renderChargeState();
+
+// ================= TOAST =================
+function toast(msg, type='') {
+  const box = document.createElement('div');
+  box.className = 'toast ' + type;
+  box.textContent = msg;
+  document.getElementById('toasts').appendChild(box);
+  setTimeout(() => box.remove(), 4000);
+}
+
+// ================= BLE CONNECT =================
+document.getElementById('connectBtn').addEventListener('click', async () => {
+  if (document.body.classList.contains('connected')) {
+    if (device && device.gatt.connected) device.gatt.disconnect();
+    return;
+  }
+  try {
+    setSearching(true);
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [SERVICE_UUID] }]
+    });
+    device.addEventListener('gattserverdisconnected', onDisconnected);
+
+    server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+    dataChar = await service.getCharacteristic(CHAR_DATA_UUID);
+    cmdChar  = await service.getCharacteristic(CHAR_CMD_UUID);
+
+    await dataChar.startNotifications();
+    dataChar.addEventListener('characteristicvaluechanged', onDataNotify);
+
+    initialReadySent = false; // unit baru nyala -> Ready ESP dinyalakan di data pertama
+    setConnected(true);
+    toast('BLE tersambung ke ' + device.name, 'live');
+    applyBatteryGaugeDisplay();
+  } catch (err) {
+    setSearching(false);
+    toast('Gagal terhubung: ' + err.message, 'alert');
+  }
+});
+
+function onDisconnected() {
+  setConnected(false);
+  toast('BLE terputus', 'alert');
+  clearTimeout(chargeTimer);
+  if (chargerAlarmTimer) clearInterval(chargerAlarmTimer);
+  chargerAlarmActive = false;
+  chargeState = 'IDLE'; chargeMode = null; chargePercent = 0;
+  initialReadySent = false; ignNow = false;
+  battEmptyAlarmActive = false; alarmBeepOn = false;
+  simSpeed = 0; lastDisplaySent = null; lastAutoMotorCmd = null; rideInputs = null;
+  lastProcessedRfidHex = '';
+  updateSimSpeedUI();
+  renderChargeState();
+}
+
+function setSearching(v) {
+  document.body.classList.toggle('searching', v);
+}
+function setConnected(v) {
+  document.body.classList.remove('searching');
+  document.body.classList.toggle('connected', v);
+  document.body.classList.toggle('disconnected', !v);
+  document.getElementById('statusText').textContent = v ? 'Terhubung' : 'Belum terhubung';
+  document.getElementById('connectBtn').textContent = v ? 'Putuskan' : 'Hubungkan BLE';
+}
+function isConnected() {
+  return document.body.classList.contains('connected') && !!cmdChar;
+}
+
+// ================= PARSE DATA (37 byte) =================
+function onDataNotify(event) {
+  const dv = event.target.value;
+  const chargerAnalog = dv.getUint16(0, true);
+  const espBits = dv.getUint8(2);
+  const rfidLen = dv.getUint8(3);
+  const rfidBytes = [];
+  for (let i = 0; i < 7; i++) rfidBytes.push(dv.getUint8(4 + i));
+
+  const TH  = dv.getUint16(11, true);
+  const SPD = dv.getUint16(13, true);
+  const V5  = dv.getUint16(15, true);
+  const LOC = dv.getUint16(17, true);
+  const REG = dv.getUint16(19, true);
+  const W   = dv.getUint16(21, true);
+  const V   = dv.getUint16(23, true);
+  const U   = dv.getUint16(25, true);
+  const BATTMINUS = dv.getUint16(27, true);
+  const BATTPLUS  = dv.getUint16(29, true);
+  const digitalInputBits = dv.getUint8(31);
+  const megaBits = dv.getUint16(32, true);
+  const motorVal = dv.getInt16(34, true);
+  const megaOnline = dv.getUint8(36);
+
+  const nowTs = performance.now();
+  if (nowTs - lastEspSendTs > 500) espOutputBits = espBits;
+  if (nowTs - lastMegaSendTs > 500) megaOutputBits = megaBits;
+  motorValue = motorVal;
+
+  // (1) Unit pertama nyala -> output ESP Ready menyala
+  if (!initialReadySent) {
+    initialReadySent = true;
+    const b = espOutputBits | (1<<ESP_BIT_READY);
+    if (b !== espOutputBits) { espOutputBits = b; sendCmd(0, b); }
+  }
+
+  const vals = {TH,SPD,V5,LOC,REG,W,V,U,BATTMINUS,BATTPLUS,CHARGER:chargerAnalog};
+
+  updateTelemetry(vals);
+  updateDigitalInputs(digitalInputBits);
+  updateToggles('espOutGrid', ESP_OUT_BITS, espOutputBits);
+  updateToggles('megaOutGrid', MEGA_OUT_BITS, megaOutputBits);
+  if (!rideAutoMode) updateMotorUI(motorVal);
+  updateRfid(rfidLen, rfidBytes);
+  updateStatusCards(vals);
+  updateMegaLink(megaOnline);
+  updateSpeedGauge(SPD);
+  updateRideChips(digitalInputBits);
+
+  handleChargerStatus(classifyCharging(vals.CHARGER));
+  evaluateChargerAutoMode(vals.CHARGER);
+
+  // (2) Deteksi tap kartu. Saat kartu diangkat (len=0) memori UID direset,
+  // sehingga tap berikutnya -- termasuk kartu salah yang sama -- diproses lagi.
+  if (rfidLen > 0) {
+    const hex = rfidBytes.slice(0, rfidLen).map(b => b.toString(16).padStart(2,'0').toUpperCase()).join('');
+    if (hex !== lastProcessedRfidHex) {
+      lastProcessedRfidHex = hex;
+      onRfidTap(hex);
+    }
+  } else {
+    lastProcessedRfidHex = '';
+  }
+
+  applyRideAutomation(digitalInputBits, vals);
+}
+
+// ================= UPDATE UI DASAR =================
+function updateTelemetry(vals) {
+  TELEMETRY.forEach(t => {
+    const v = vals[t.key];
+    if (v === undefined) return;
+    document.getElementById('val_' + t.key).textContent = v;
+    document.getElementById('bar_' + t.key).style.width = Math.min(100, (v / t.max) * 100) + '%';
+  });
+}
+
+function updateDigitalInputs(bits) {
+  DIGITAL_IN_BITS.forEach((_, i) => {
+    const el = document.getElementById('din_' + i);
+    el.classList.toggle('on', !!((bits >> i) & 1));
+  });
+}
+
+function updateToggles(containerId, labels, bits) {
+  labels.forEach((_, i) => {
+    const el = document.getElementById(containerId + '_' + i);
+    if (el) el.classList.toggle('on', !!((bits >> i) & 1));
+  });
+}
+
+function updateMotorUI(val) {
+  document.getElementById('motorVal').textContent = val;
+  document.getElementById('motorDir').textContent = val > 0 ? 'CW' : (val < 0 ? 'CCW' : 'STOP');
+  const slider = document.getElementById('motorSlider');
+  if (document.activeElement !== slider) slider.value = val;
+}
+
+function updateRfid(len, bytes) {
+  const box = document.getElementById('rfidUid');
+  if (len === 0) {
+    box.className = 'rfid-empty';
+    box.textContent = 'Belum ada kartu terbaca';
+  } else {
+    box.className = 'rfid-uid';
+    box.textContent = bytes.slice(0, len).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+  }
+}
+
+function updateSpeedGauge(spd) {
+  const pct = Math.min(100, Math.max(0, (spd / 1023) * 100));
+  document.getElementById('speedGaugeRing').style.setProperty('--pct', pct.toFixed(1));
+  document.getElementById('gaugeSpeedVal').textContent = spd;
+}
+
+function updateRideChips(bits) {
+  setChip('chipIgnition', 'Ignition', !!((bits >> DIN_BIT_IGN) & 1));
+  setChip('chipReverse', 'Reverse', !!((bits >> DIN_BIT_REV) & 1));
+  setChip('chipPark', 'Standside/Park', !!((bits >> DIN_BIT_STD) & 1));
+  setChip('chipBrake', 'Brake', !!((bits >> DIN_BIT_BRK) & 1));
+}
+function setChip(id, label, on) {
+  const el = document.getElementById(id);
+  el.textContent = label + ': ' + (on ? 'ON' : 'OFF');
+  el.classList.toggle('on', on);
+}
+
+function updateSimSpeedUI() {
+  document.getElementById('simSpeedDisplay').textContent = String(Math.round(simSpeed)).padStart(3, '0');
+  document.getElementById('simSpeedCap').textContent = effSpeedCap + (battLimitedNow ? ' (dibatasi baterai)' : '') + ' (mundur ' + REVERSE_CAP + ')';
+}
+
+// ================= KLASIFIKASI STATUS =================
+function classifyCharging(v) {
+  if (v > 2500) return {label:'Fast Charging', state:'live'};
+  if (v >= 1400 && v <= 2200) return {label:'Charging Error', state:'alert'};
+  if (v >= 700 && v <= 1200) return {label:'Ready', state:'neutral'};
+  if (v < 600) return {label:'Slow Charging', state:'warn'};
+  return {label:'Transisi / Tidak Diketahui', state:'neutral'};
+}
+
+function classifyBattery(battPlus, battMinus) {
+  if (battMinus > 300) return {label:'Battery Error', state:'alert'};
+  if (battPlus > 1000 && battMinus > 200 && battMinus < 330) return {label:'48V', state:'live'};
+  if (battPlus >= 700 && battPlus <= 1000 && battMinus > 200 && battMinus <= 300) return {label:'60V', state:'live'};
+  if (battPlus >= 400 && battPlus <= 1000 && battMinus <= 200) return {label:'60V + Precharge', state:'live'};
+  if (battPlus >= 550 && battPlus < 700 && battMinus > 200 && battMinus <= 300) return {label:'72V', state:'live'};
+  if (battPlus >= 250 && battPlus < 400 && battMinus <= 200) return {label:'72V + Precharge', state:'live'};
+  if (battPlus >= 150 && battPlus < 550 && battMinus > 200 && battMinus <= 300) return {label:'90V (Tegangan tinggi wajib pakai Precharge)', state:'live'};
+  if (battPlus >= 150 && battPlus < 250 && battMinus <= 200) return {label:'90V + Precharge', state:'live'};
+  return {label:'BATERAI OFF', state:'neutral'};
+}
+
+function classifySpeedMode(spd) {
+  if (spd > 1000) return {label:'Speed 1 (ECO)', state:'live'};
+  if (spd >= 680 && spd <= 850) return {label:'Speed 2 (NORMAL)', state:'warn'};
+  if (spd <= 679) return {label:'Speed 3 (SPORT)', state:'alert'};
+  return {label:'Netral / Tidak Diketahui', state:'neutral'};
+}
+
+function classifyBldc(u, v, w) {
+  const catOf = (val) => {
+    if (val < 400) return '400W';
+    if (val >= 410 && val <= 700) return '2000W';
+    if (val > 710) return '8000W';
+    return null;
+  };
+  const cu = catOf(u), cv = catOf(v), cw = catOf(w);
+  if (cu && cu === cv && cv === cw) return {label:'BLDC ' + cu, state:'live'};
+  return {label:'BLDC Motor Error', state:'alert'};
+}
+
+function setStatusCard(prefix, result, rawText) {
+  document.getElementById('val' + prefix).textContent = result.label;
+  document.getElementById('raw' + prefix).textContent = rawText;
+  const card = document.getElementById('card' + prefix);
+  card.classList.remove('state-live', 'state-warn', 'state-alert', 'state-neutral');
+  card.classList.add('state-' + result.state);
+}
+
+function updateStatusCards(v) {
+  setStatusCard('Charging', classifyCharging(v.CHARGER), 'raw: ' + v.CHARGER);
+  setStatusCard('Battery', classifyBattery(v.BATTPLUS, v.BATTMINUS), 'BATT+: ' + v.BATTPLUS + '  BATT-: ' + v.BATTMINUS);
+  setStatusCard('SpeedMode', classifySpeedMode(v.SPD), 'raw: ' + v.SPD);
+  setStatusCard('Bldc', classifyBldc(v.U, v.V, v.W), 'U:' + v.U + ' V:' + v.V + ' W:' + v.W);
+}
+
+function updateMegaLink(online) {
+  document.getElementById('megaLinkText').textContent = 'Link Mega: ' + (online ? 'Online' : 'Offline');
+  document.getElementById('megaLinkDot').style.background = online ? 'var(--live)' : 'var(--alert)';
+  document.getElementById('megaLinkDot').style.boxShadow = online ? '0 0 8px var(--live)' : 'none';
+}
+
+// ================= OUTPUT MEGA: SATU PINTU KELUAR =================
+// Semua penulisan output Mega lewat sendMega() supaya bit baterai (+kedip Empty) dan
+// bit buzzer alarm tidak saling menimpa dengan penulis lain (penyebab buzzer "tidak bunyi").
+function desiredBatteryBits() {
+  let b = batteryBitsFromPercent(batteryPercent);
+  if ((b & (1<<BIT_EMPTY)) && !battBlinkOn) b &= ~(1<<BIT_EMPTY); // (3) LED Empty berkedip
+  return b;
+}
+function composeMega(bits) {
+  bits = (bits & ~BATTERY_BIT_MASK) | desiredBatteryBits();
+  if (battEmptyAlarmActive) {
+    bits = alarmBeepOn ? (bits | (1<<MEGA_BIT_ALM)) : (bits & ~(1<<MEGA_BIT_ALM));
+  }
+  return bits;
+}
+function sendMega(bits) {
+  const b = composeMega(bits);
+  megaOutputBits = b;
+  sendCmd(1, b);
+}
+
+// (4) Alarm aktif selama indikator Empty menyala (baterai < 25%), tidak sedang charging, ignition ON.
+function shouldBatteryAlarm() {
+  return batteryPercent < EMPTY_BELOW_PERCENT && chargeState !== 'CHARGING' && ignNow;
+}
+
+// Dipanggil tiap 100 ms: mengatur kedip LED Empty dan pola buzzer (bunyi pendek, (5) jeda sunyi panjang).
+function megaEngineTick() {
+  if (!isConnected()) return;
+  const now = performance.now();
+  const wasAlarm = battEmptyAlarmActive;
+  battEmptyAlarmActive = shouldBatteryAlarm();
+  const blink = Math.floor(now / BLINK_HALF_MS) % 2 === 0;
+  const beep = battEmptyAlarmActive && (now % ALARM_CYCLE_MS) < ALARM_BEEP_MS;
+  let need = (wasAlarm !== battEmptyAlarmActive);
+  if (blink !== battBlinkOn) { battBlinkOn = blink; if (batteryPercent < EMPTY_BELOW_PERCENT) need = true; }
+  if (beep !== alarmBeepOn) { alarmBeepOn = beep; need = true; }
+  if (wasAlarm && !battEmptyAlarmActive) megaOutputBits &= ~(1<<MEGA_BIT_ALM);
+  if (need) sendMega(megaOutputBits);
+}
+setInterval(megaEngineTick, 100);
+
+// ================= SIMULASI CHARGING =================
+function chargeProgressFraction(mode, elapsedMs) {
+  const t = CHARGE_TIMING[mode];
+  if (elapsedMs <= 0) return 0;
+  if (elapsedMs >= t.total) return 1;
+  if (elapsedMs <= t.seg1) return 0.75 * (elapsedMs / t.seg1);
+  const seg2Elapsed = elapsedMs - t.seg1;
+  const seg2Total = t.total - t.seg1;
+  return 0.75 + 0.25 * (seg2Elapsed / seg2Total);
+}
+function computeChargePercent(mode, elapsedMs, startPercent) {
+  if (startPercent >= 100) return 100;
+  const frac = chargeProgressFraction(mode, elapsedMs);
+  return startPercent + (100 - startPercent) * frac;
+}
+
+function batteryBitsFromPercent(percent) {
+  if (percent >= 100) return (1<<BIT_ONE)|(1<<BIT_TWO)|(1<<BIT_THREE)|(1<<BIT_FOUR);
+  if (percent >= 75)  return (1<<BIT_ONE)|(1<<BIT_TWO)|(1<<BIT_THREE);
+  if (percent >= 50)  return (1<<BIT_ONE)|(1<<BIT_TWO);
+  if (percent >= EMPTY_BELOW_PERCENT) return (1<<BIT_ONE);
+  return (1<<BIT_EMPTY);
+}
+
+function applyBatteryGaugeDisplay() {
+  if (composeMega(megaOutputBits) !== megaOutputBits) sendMega(megaOutputBits);
+  renderChargeProgress();
+
+  const chip = document.getElementById('chipBattery');
+  if (chip) {
+    const pct = Math.round(batteryPercent);
+    chip.textContent = 'Baterai: ' + pct + '%';
+    chip.classList.toggle('on', pct > 20);
+    chip.style.color = pct <= 0 ? 'var(--alert)' : (pct < 20 ? 'var(--warn)' : '');
+  }
+}
+
+function evaluateChargerAutoMode(v) {
+  if (chargerAlarmActive) return;
+  const cls = classifyCharging(v);
+  if (chargeState === 'IDLE') {
+    if (cls.label === 'Fast Charging') startChargeMode('fast');
+    else if (cls.label === 'Slow Charging') startChargeMode('slow');
+    return;
+  }
+  if (chargeState === 'WAIT_CARD' || chargeState === 'CHARGING') {
+    const stillValid =
+      (chargeMode === 'fast' && cls.label === 'Fast Charging') ||
+      (chargeMode === 'slow' && cls.label === 'Slow Charging');
+    if (!stillValid) {
+      toast('Charger dicabut / mode berubah. Proses charging dibatalkan.', 'warn');
+      beepCancel();
+      resetSimulation();
+    }
+  }
+}
+
+function startChargeMode(mode) {
+  if (chargeState !== 'IDLE') return;
+  chargeMode = mode;
+  chargeState = 'WAIT_CARD';
+  let bits = espOutputBits;
+  bits &= ~((1<<ESP_BIT_SLOW)|(1<<ESP_BIT_FAST)|(1<<ESP_BIT_CHARGING)|(1<<ESP_BIT_FINISH)|(1<<ESP_BIT_ERROR));
+  bits |= (1<<ESP_BIT_PAY);
+  bits |= (mode === 'fast') ? (1<<ESP_BIT_FAST) : (1<<ESP_BIT_SLOW);
+  sendCmd(0, bits);
+  espOutputBits = bits;
+  sendMega(megaOutputBits & ~(1<<BIT_READY_MEGA)); // charger terpasang -> Ready Mega mati
+  document.getElementById('btnFastCharge').classList.toggle('active', mode === 'fast');
+  document.getElementById('btnSlowCharge').classList.toggle('active', mode === 'slow');
+  renderChargeState();
+  beepModeDetected();
+  toast('Charger terdeteksi: mode ' + (mode === 'fast' ? 'Fast' : 'Slow') + ' Charging. Tempelkan kartu RFID.', 'live');
+}
+
+function onRfidTap(hex) {
+  if (chargeState !== 'WAIT_CARD') return;
+  if (hex === VALID_CARD_HEX) beginCharging();
+  else rejectCard();
+}
+
+// (2) Kartu salah: toast + buzzer ESP 2x bip pendek, setiap kali kartu salah di-tap
+function rejectCard() {
+  toast('Kartu tidak dikenali / tidak valid.', 'alert');
+  beepOnce(120);
+  setTimeout(() => beepOnce(120), 300);
+}
+
+function beepOnce(durationMs) {
+  sendCmd(0, espOutputBits | (1<<ESP_BIT_BUZZ));
+  setTimeout(() => {
+    espOutputBits &= ~(1<<ESP_BIT_BUZZ);
+    sendCmd(0, espOutputBits);
+  }, durationMs);
+}
+function beepModeDetected() { beepOnce(100); }
+function beepCardAccepted() { beepOnce(250); }
+function beepSuccessChime() { beepOnce(90); setTimeout(() => beepOnce(150), 180); }
+function beepCancel() { beepOnce(400); }
+
+function beginCharging() {
+  chargeState = 'CHARGING';
+  chargeStartTs = performance.now();
+  chargeStartPercent = batteryPercent;
+  let bits = espOutputBits;
+  bits &= ~(1<<ESP_BIT_PAY);
+  bits |= (1<<ESP_BIT_CHARGING);
+  sendCmd(0, bits);
+  espOutputBits = bits;
+  toast('Kartu valid. Memulai proses charging...', 'live');
+  beepCardAccepted();
+  renderChargeState();
+  chargeTick();
+}
+
+function chargeTick() {
+  if (chargeState !== 'CHARGING') return;
+  const elapsed = performance.now() - chargeStartTs;
+  chargePercent = computeChargePercent(chargeMode, elapsed, chargeStartPercent);
+  batteryPercent = chargePercent;
+  applyBatteryGaugeDisplay();
+
+  if (chargePercent >= 100) finishCharging();
+  else chargeTimer = setTimeout(chargeTick, 200);
+}
+
+function finishCharging() {
+  chargeState = 'DONE';
+  let bits = espOutputBits;
+  bits &= ~((1<<ESP_BIT_CHARGING)|(1<<ESP_BIT_SLOW)|(1<<ESP_BIT_FAST));
+  bits |= (1<<ESP_BIT_FINISH);
+  sendCmd(0, bits);
+  espOutputBits = bits;
+  renderChargeState();
+  toast('Charging selesai! Kendaraan siap digunakan.', 'live');
+  beepSuccessChime();
+
+  setTimeout(() => {
+    let b2 = espOutputBits & ~(1<<ESP_BIT_FINISH);
+    b2 |= (1<<ESP_BIT_READY);
+    sendCmd(0, b2);
+    espOutputBits = b2;
+
+
+    chargeState = 'IDLE';
+    chargeMode = null;
+    document.getElementById('btnFastCharge').classList.remove('active');
+    document.getElementById('btnSlowCharge').classList.remove('active');
+    renderChargeState();
+    setRideAutoMode(true);
+  }, 1500);
+}
+
+function resetSimulation() {
+  clearTimeout(chargeTimer);
+  chargeState = 'IDLE';
+  chargeMode = null;
+  let bits = espOutputBits;
+  bits &= ~((1<<ESP_BIT_CHARGING)|(1<<ESP_BIT_FINISH)|(1<<ESP_BIT_SLOW)|(1<<ESP_BIT_FAST)|(1<<ESP_BIT_PAY)|(1<<ESP_BIT_ERROR));
+  sendCmd(0, bits);
+  espOutputBits = bits;
+  document.getElementById('btnFastCharge').classList.remove('active');
+  document.getElementById('btnSlowCharge').classList.remove('active');
+  renderChargeState();
+}
+
+// ================= DRAIN BATERAI SAAT RIDING =================
+function applyBatteryDrain(speedClass, throttleRaw) {
+  const now = performance.now();
+  if (lastDrainTs === null) { lastDrainTs = now; return; }
+  const dtSec = (now - lastDrainTs) / 1000;
+  lastDrainTs = now;
+  if (batteryPercent <= 0) { batteryPercent = 0; return; }
+
+  let maxRate = 0.5;
+  if (speedClass.label.indexOf('NORMAL') >= 0) maxRate = 1.0;
+  else if (speedClass.label.indexOf('SPORT') >= 0) maxRate = 2.0;
+
+  const throttleFrac = Math.max(0, Math.min(1, throttleRaw / 1023));
+  const idleRate = maxRate * 0.08;
+  const rate = idleRate + (maxRate - idleRate) * throttleFrac;
+
+  batteryPercent = Math.max(0, batteryPercent - rate * dtSec);
+}
+
+function renderChargeState() {
+  const map = {
+    IDLE:      ['IDLE', 'Pilih mode charging untuk memulai.'],
+    WAIT_CARD: ['MENUNGGU KARTU', 'Tempelkan kartu RFID yang valid untuk memulai ' + (chargeMode === 'fast' ? 'Fast' : 'Slow') + ' Charging.'],
+    CHARGING:  ['CHARGING', (chargeMode === 'fast' ? 'Fast' : 'Slow') + ' Charging sedang berlangsung...'],
+    DONE:      ['SELESAI', 'Charging selesai. Kendaraan siap digunakan.'],
+    ERROR:     ['ERROR', 'Charger error terdeteksi. Proses dihentikan.'],
+  };
+  const m = map[chargeState] || ['--', ''];
+  document.getElementById('chargeStateTag').textContent = m[0];
+  document.getElementById('chargeStatusText').textContent = m[1];
+  document.getElementById('btnFastCharge').disabled = (chargeState === 'CHARGING');
+  document.getElementById('btnSlowCharge').disabled = (chargeState === 'CHARGING');
+  renderChargeProgress();
+  renderAutoLocks();
+}
+
+function renderChargeProgress() {
+  const pct = Math.round(batteryPercent);
+  document.getElementById('chargeProgressFill').style.width = Math.max(0, Math.min(100, pct)) + '%';
+  document.getElementById('chargePercentLabel').textContent = pct + '%';
+}
+
+// ================= WATCHDOG ERROR CHARGER =================
+// ASUMSI: saat error terdeteksi, LED Error di-NYALAKAN dan buzzer berbunyi kode error berulang.
+function handleChargerStatus(chargerClass) {
+  const isError = chargerClass.state === 'alert';
+  if (isError && !chargerAlarmActive) {
+    chargerAlarmActive = true;
+    if (chargeState === 'CHARGING') { clearTimeout(chargeTimer); chargeState = 'ERROR'; }
+    let bits = espOutputBits;
+    bits |= (1<<ESP_BIT_ERROR);
+    bits &= ~((1<<ESP_BIT_CHARGING)|(1<<ESP_BIT_SLOW)|(1<<ESP_BIT_FAST)|(1<<ESP_BIT_PAY));
+    sendCmd(0, bits);
+    espOutputBits = bits;
+    renderChargeState();
+    sendMega(megaOutputBits & ~(1<<BIT_READY_MEGA));
+    toast('Charger Error terdeteksi!', 'alert');
+    chargerAlarmTimer = setInterval(() => {
+      espOutputBits ^= (1<<ESP_BIT_BUZZ);
+      sendCmd(0, espOutputBits);
+    }, 200);
+  } else if (!isError && chargerAlarmActive) {
+    chargerAlarmActive = false;
+    clearInterval(chargerAlarmTimer);
+    let bits = espOutputBits;
+    bits &= ~((1<<ESP_BIT_ERROR)|(1<<ESP_BIT_BUZZ));
+    sendCmd(0, bits);
+    espOutputBits = bits;
+    if (chargeState === 'ERROR') {
+      chargeState = 'IDLE'; chargeMode = null;
+      renderChargeState();
+      toast('Charger normal kembali. Silakan ulangi pilih mode.', 'live');
+    }
+  }
+}
+
+// ================= SIMULASI BERKENDARA (AUTO RIDE MODE) =================
+function setRideAutoMode(on) {
+  rideAutoMode = on;
+  document.getElementById('rideAutoToggle').classList.toggle('on', on);
+  document.getElementById('rideModeTag').textContent = on ? 'AUTO' : 'MANUAL';
+  document.getElementById('motorSlider').disabled = on;
+  document.getElementById('motorAutoNote').style.display = on ? 'block' : 'none';
+  lastAutoMotorCmd = null;
+  lastDisplaySent = null;
+  lastRideTickTs = null;
+  lastDrainTs = null;
+  if (!on) { // keluar auto: motor & display dinolkan demi keamanan
+    simSpeed = 0;
+    updateSimSpeedUI();
+    updateMotorUI(0);
+    sendCmd(2, 0);
+    sendCmd(CMD_TARGET_DISPLAY, 0);
+  }
+  renderAutoLocks();
+}
+
+// Dipanggil tiap data BLE masuk: output Mega (Reverse/Park/Ready/Speed 1-3) mengikuti sensor.
+function applyRideAutomation(digitalInputBits, vals) {
+  ignNow = !!((digitalInputBits >> DIN_BIT_IGN) & 1);
+  rideInputs = { dib: digitalInputBits, vals: vals };
+  if (!rideAutoMode) return;
+
+  const rev = !!((digitalInputBits >> DIN_BIT_REV) & 1);
+  const std = !!((digitalInputBits >> DIN_BIT_STD) & 1);
+  const battClass = classifyBattery(vals.BATTPLUS, vals.BATTMINUS);
+  const speedClass = classifySpeedMode(vals.SPD);
+  const batteryOk = battClass.label !== 'Battery Error' && battClass.label !== 'BATERAI OFF';
+  const safe = ignNow && batteryOk && !chargerBlocksRide(vals.CHARGER);
+
+  let bits = megaOutputBits;
+  bits = rev  ? (bits | (1<<BIT_REVERSE))    : (bits & ~(1<<BIT_REVERSE));
+  bits = std  ? (bits | (1<<BIT_PARK))       : (bits & ~(1<<BIT_PARK));
+  bits = safe ? (bits | (1<<BIT_READY_MEGA)) : (bits & ~(1<<BIT_READY_MEGA));
+
+  bits &= ~((1<<BIT_SPEED1)|(1<<BIT_SPEED2)|(1<<BIT_SPEED3));
+  if (speedClass.label.indexOf('ECO') >= 0) bits |= (1<<BIT_SPEED1);
+  else if (speedClass.label.indexOf('NORMAL') >= 0) bits |= (1<<BIT_SPEED2);
+  else if (speedClass.label.indexOf('SPORT') >= 0) bits |= (1<<BIT_SPEED3);
+
+  if (composeMega(bits) !== megaOutputBits) sendMega(bits);
+}
+
+// (6) Simulasi kecepatan motor, jalan tiap 100 ms. Kecepatan naik/turun bertahap (inersia)
+// menuju target = throttle x batas mode (ECO 60 / NORMAL 90 / SPORT 120).
+function rideTick() {
+  const now = performance.now();
+  const dt = lastRideTickTs === null ? 0.1 : Math.min(0.5, (now - lastRideTickTs) / 1000);
+  lastRideTickTs = now;
+  if (!rideAutoMode || !rideInputs || !isConnected()) return;
+
+  const dib = rideInputs.dib, vals = rideInputs.vals;
+  const ign = !!((dib >> DIN_BIT_IGN) & 1);
+  const rev = !!((dib >> DIN_BIT_REV) & 1);
+  const std = !!((dib >> DIN_BIT_STD) & 1);
+  const brk = !!((dib >> DIN_BIT_BRK) & 1);
+
+  const battClass = classifyBattery(vals.BATTPLUS, vals.BATTMINUS);
+  const speedClass = classifySpeedMode(vals.SPD);
+  const mode = speedClass.label.indexOf('ECO') >= 0 ? 1 :
+               speedClass.label.indexOf('NORMAL') >= 0 ? 2 :
+               speedClass.label.indexOf('SPORT') >= 0 ? 3 : 0;
+  if (mode) lastSpeedCap = SPEED_CAP[mode]; // zona netral: pakai batas mode terakhir
+
+  const batteryOk = battClass.label !== 'Battery Error' && battClass.label !== 'BATERAI OFF';
+  const safe = ign && batteryOk && !chargerBlocksRide(vals.CHARGER);
+  const battCutoff = batteryPercent < EMPTY_BELOW_PERCENT;     // (3) baterai habis (buzzer bunyi): motor mati
+  const battLimited = batteryPercent < ONE_BAR_BELOW_PERCENT;  // (3) tinggal 1 batang: maks seperti Speed 1
+  effSpeedCap = battLimited ? Math.min(lastSpeedCap, SPEED_CAP[1]) : lastSpeedCap;
+  battLimitedNow = battLimited;
+  const canDrive = safe && !std && !brk && !battCutoff;
+  const maxDisp = rev ? REVERSE_CAP : effSpeedCap;
+  const thFrac = Math.max(0, Math.min(1, vals.TH / 1023));
+  const target = canDrive ? thFrac * maxDisp : 0;
+
+  if (simSpeed < target) {
+    simSpeed = Math.min(target, simSpeed + ACCEL_RATE * dt);
+  } else {
+    const decel = (brk || std || !safe) ? BRAKE_DECEL : COAST_DECEL;
+    simSpeed = Math.max(target, simSpeed - decel * dt);
+  }
+
+  // (2) baterai hanya berkurang saat motor benar-benar bergerak (tidak ada drain standby)
+  if (ign && simSpeed > 0.5) applyBatteryDrain(speedClass, canDrive ? vals.TH : 0);
+  else lastDrainTs = null;
+  if (ign) applyBatteryGaugeDisplay();
+
+  // PWM motor mengikuti kecepatan simulasi (SPORT_MAX -> 255), jadi otomatis terbatas per mode.
+  let motorCmd = Math.round(simSpeed / SPORT_MAX * 255);
+  if (rev) motorCmd = -motorCmd;
+  motorCmd = Math.max(-255, Math.min(255, motorCmd));
+  if (motorCmd !== lastAutoMotorCmd) {
+    sendCmd(2, motorCmd);
+    lastAutoMotorCmd = motorCmd;
+  }
+  updateMotorUI(motorCmd);
+
+  // Angka seven segment
+  const disp = Math.round(simSpeed);
+  if (disp !== lastDisplaySent) {
+    sendCmd(CMD_TARGET_DISPLAY, disp);
+    lastDisplaySent = disp;
+  }
+  updateSimSpeedUI();
+}
+setInterval(rideTick, 100);
+
+function renderAutoLocks() {
+  // Output baterai Mega selalu dikendalikan otomatis (level baterai persisten + kedip Empty)
+  AUTO_MEGA_BATTERY.forEach(i => lockToggle('megaOutGrid', i, true));
+  AUTO_MEGA_RIDE.forEach(i => lockToggle('megaOutGrid', i, rideAutoMode));
+}
+
+function lockToggle(containerId, index, locked) {
+  const sw = document.getElementById(containerId + '_' + index);
+  const tag = document.getElementById(containerId + '_' + index + '_tag');
+  if (!sw) return;
+  const row = sw.closest('.toggle-row');
+  row.classList.toggle('locked', locked);
+  if (tag) tag.classList.toggle('show', locked);
+}
+
+// ================= KIRIM PERINTAH =================
+// Semua tulis GATT diantrekan agar tidak tumpang tindih.
+let cmdQueue = Promise.resolve();
+let lastFailToastTs = 0;
+
+function sendCmd(target, value) {
+  const t = performance.now();
+  if (target === 0) lastEspSendTs = t;
+  else if (target === 1) lastMegaSendTs = t;
+  cmdQueue = cmdQueue.then(() => doSendCmd(target, value)).catch(() => {});
+  return cmdQueue;
+}
+
+async function doSendCmd(target, value) {
+  if (!cmdChar) return;
+  const buf = new Uint8Array(3);
+  buf[0] = target;
+  buf[1] = value & 0xFF;
+  buf[2] = (value >> 8) & 0xFF;
+  try {
+    await cmdChar.writeValueWithoutResponse(buf);
+  } catch (e) {
+    try {
+      await cmdChar.writeValue(buf);
+    } catch (e2) {
+      const now = Date.now();
+      if (now - lastFailToastTs > 3000) {
+        toast('Gagal kirim perintah', 'alert');
+        lastFailToastTs = now;
+      }
+    }
+  }
+}
+
+function toggleOutputBit(target, bitIndex) {
+  if (target === 'esp') {
+    espOutputBits ^= (1 << bitIndex);
+    sendCmd(0, espOutputBits);
+    updateToggles('espOutGrid', ESP_OUT_BITS, espOutputBits);
+  } else {
+    sendMega(megaOutputBits ^ (1 << bitIndex));
+    updateToggles('megaOutGrid', MEGA_OUT_BITS, megaOutputBits);
+  }
+}
+
+let motorSendTimer = null;
+document.getElementById('motorSlider').addEventListener('input', (e) => {
+  if (rideAutoMode) return;
+  const v = parseInt(e.target.value, 10);
+  updateMotorUI(v);
+  clearTimeout(motorSendTimer);
+  motorSendTimer = setTimeout(() => sendCmd(2, v), 60);
+});
+document.getElementById('motorStopBtn').addEventListener('click', () => {
+  if (rideAutoMode) setRideAutoMode(false);
+  document.getElementById('motorSlider').value = 0;
+  updateMotorUI(0);
+  sendCmd(2, 0);
+});
+
+document.getElementById('btnResetCharge').addEventListener('click', resetSimulation);
+document.getElementById('rideAutoToggle').addEventListener('click', () => setRideAutoMode(!rideAutoMode));
+
+// ================= CEK DUKUNGAN BROWSER =================
+if (!navigator.bluetooth) {
+  toast('Browser ini tidak mendukung Web Bluetooth. Gunakan Chrome/Edge di Android atau Desktop.', 'alert');
+  document.getElementById('connectBtn').disabled = true;
+}
+</script>
+</body>
+</html>

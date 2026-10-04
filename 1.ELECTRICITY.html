@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dasar Elektronika: Multimeter, Resistor, LED, Pembagi Tegangan, Kapasitor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style>
+:root{box-sizing:border-box;color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:#0f172a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+[x-cloak]{display:none!important}
+.tip{border-bottom:1.5px dotted #4ade80;cursor:help;font-weight:600;color:#fff;outline:none}
+.tip:after{content:"?";display:inline-block;margin-left:2px;width:13px;height:13px;line-height:13px;text-align:center;font-size:9px;border-radius:50%;background:#16a34a;color:#fff;vertical-align:super}
+#tp{position:fixed;display:none;max-width:280px;z-index:99;background:#020617;border:1px solid #4ade80;color:#e2e8f0;font-size:12px;line-height:1.5;padding:8px 10px;border-radius:8px;box-shadow:0 8px 24px #000a;pointer-events:none}
+@keyframes fl{to{stroke-dashoffset:-24}}
+.flow{stroke-dasharray:12 12;animation:fl linear infinite}
+input[type=range]{width:100%;accent-color:#22c55e}
+.card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:20px}
+.in{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:8px;width:100%;color:#fff;font-size:14px}
+.big{font-size:26px;font-weight:800}
+.lbl{font-size:12px;color:#94a3b8}
+.warn{background:#78350f55;border:1px solid #f59e0b;color:#fde68a;border-radius:10px;padding:10px;font-size:12px}
+.note{background:#14532d44;border:1px solid #16a34a66;color:#d1fae5;border-radius:10px;padding:10px;font-size:12px}
+.lcd{background:#a3b18a;color:#1b2410;font-family:ui-monospace,Menlo,monospace;border-radius:10px;padding:14px;text-align:right;font-size:40px;font-weight:700;min-height:84px}
+.mb{padding:8px 10px;border-radius:8px;border:1px solid #475569;background:#0f172a;font-size:13px}
+.mb.on{background:#16a34a;border-color:#4ade80;color:#fff;font-weight:700}
+</style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="app()" x-cloak>
+<div id="tp"></div>
+
+<header class="bg-slate-800 border-b border-slate-700 sticky z-40" style="top:env(safe-area-inset-top,0px)">
+ <div class="max-w-6xl mx-auto px-4 py-3">
+  <div class="flex items-center gap-3 mb-3">
+   <div class="bg-green-500 text-slate-900 w-10 h-10 rounded-xl flex items-center justify-center text-xl">🔌</div>
+   <div><h1 class="font-bold text-lg leading-tight">Dasar Elektronika (Bagian 0)</h1>
+   <p class="text-xs text-slate-400">Ketuk / arahkan kursor ke istilah bergaris titik hijau untuk penjelasan</p></div>
+  </div>
+  <nav class="flex gap-2 overflow-x-auto pb-1">
+   <template x-for="t in tabs" :key="t[0]"><button @click="tab=t[0]" :class="tab===t[0]?'bg-green-500 text-slate-900 font-semibold':'bg-slate-700 text-slate-300'" class="px-3 py-1.5 rounded-lg text-sm whitespace-nowrap" x-text="t[1]"></button></template>
+  </nav>
+ </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6 space-y-5">
+
+<!-- 1 DASAR -->
+<section x-show="tab==='dasar'" class="space-y-5">
+ <div class="card">
+  <h2 class="text-xl font-bold mb-1">Rangkaian Tertutup: syarat arus mengalir</h2>
+  <p class="text-sm text-slate-300">Arus hanya mengalir jika ada <b>sumber</b>, <b>beban</b>, dan <b>jalur tertutup</b> (loop). <b class="tip" data-k="volt">Tegangan</b> selalu diukur <i>antara dua titik</i>; <b class="tip" data-k="amp">arus</b> diukur <i>melalui</i> sebuah titik.</p>
+  <div class="grid md:grid-cols-2 gap-6 mt-4 items-center">
+   <div>
+    <svg viewBox="0 0 320 150" class="w-full bg-slate-900 rounded-xl border border-slate-700">
+     <path d="M60 30 H250 V120 H60 V30" fill="none" stroke="#334155" stroke-width="6"/>
+     <path x-show="sw" d="M60 30 H250 V120 H60 V30" fill="none" stroke="#fbbf24" stroke-width="4" class="flow" :style="`animation-duration:${Math.max(0.2,2.5/(dV/dR*100))}s`"/>
+     <rect x="52" y="60" width="16" height="30" fill="#0f172a"/>
+     <line x1="46" y1="62" x2="74" y2="62" stroke="#fff" stroke-width="3"/><line x1="54" y1="76" x2="66" y2="76" stroke="#fff" stroke-width="3"/><line x1="46" y1="88" x2="74" y2="88" stroke="#fff" stroke-width="3"/>
+     <text x="78" y="68" fill="#f87171" font-size="12">+</text><text x="78" y="96" fill="#60a5fa" font-size="12">−</text>
+     <rect x="100" y="22" width="40" height="16" fill="#0f172a"/>
+     <line x1="100" y1="30" x2="125" y2="30" stroke="#fff" stroke-width="3"/><line x1="125" y1="30" :x2="sw?140:132" :y2="sw?30:16" stroke="#fff" stroke-width="3"/>
+     <text x="105" y="14" fill="#94a3b8" font-size="10">saklar</text>
+     <rect x="238" y="55" width="24" height="40" fill="#1e293b" stroke="#fff" stroke-width="2"/>
+     <text x="270" y="78" fill="#94a3b8" font-size="10">beban</text>
+     <text x="120" y="142" fill="#94a3b8" font-size="10">arus konvensional: dari + ke −</text>
+    </svg>
+    <button @click="sw=!sw" class="mt-3 px-4 py-2 rounded-lg font-semibold" :class="sw?'bg-green-600':'bg-slate-600'" x-text="sw?'Saklar TERTUTUP (klik untuk buka)':'Saklar TERBUKA (klik untuk tutup)'"></button>
+   </div>
+   <div class="space-y-3 text-sm">
+    <label class="block">Tegangan sumber: <b class="text-blue-400" x-text="dV+' V'"></b><input type="range" min="3" max="24" x-model.number="dV"></label>
+    <label class="block">Hambatan beban: <b class="text-purple-400" x-text="dR+' Ω'"></b><input type="range" min="50" max="2000" step="50" x-model.number="dR"></label>
+    <div class="grid grid-cols-2 gap-3 text-center">
+     <div class="card !p-3"><div class="lbl">Arus</div><div class="big text-amber-400" x-text="f(sw?dV/dR*1000:0,1)+' mA'"></div></div>
+     <div class="card !p-3"><div class="lbl">Daya beban</div><div class="big text-green-400" x-text="f(sw?dV*dV/dR*1000:0,0)+' mW'"></div></div>
+    </div>
+    <p class="note">Saklar terbuka = loop putus → arus 0, tetapi tegangan sumber <b>tetap ada</b> di terminalnya. Tegangan bisa ada tanpa arus; arus tidak bisa ada tanpa tegangan.</p>
+   </div>
+  </div>
+ </div>
+ <div class="card grid md:grid-cols-3 gap-4 text-sm">
+  <div class="bg-slate-900 rounded-xl p-4"><b class="tip" data-k="dc">DC</b> vs <b class="tip" data-k="ac">AC</b><p class="text-slate-300 mt-1">Baterai, panel surya, dan sistem EV adalah DC. Listrik rumah PLN adalah AC. Multimeter punya mode terpisah untuk keduanya.</p></div>
+  <div class="bg-slate-900 rounded-xl p-4"><b class="tip" data-k="gnd">Ground / 0 V</b><p class="text-slate-300 mt-1">Titik acuan pengukuran, bukan "tempat listrik dibuang". Di EV biasanya kutub negatif baterai.</p></div>
+  <div class="bg-slate-900 rounded-xl p-4"><b>⚠ Keselamatan</b><p class="text-slate-300 mt-1">Tegangan DC di atas ±60 V (baterai motor listrik 60–96 V) berbahaya. Baterai kapasitas besar yang korslet bisa memicu api walaupun tegangannya "kecil".</p></div>
+ </div>
+</section>
+
+<!-- 2 MULTIMETER -->
+<section x-show="tab==='mm'" class="space-y-5">
+ <div class="card">
+  <h2 class="text-xl font-bold mb-1">Multimeter Virtual</h2>
+  <p class="text-sm text-slate-300 mb-4">Rangkaian uji: baterai 9 V → saklar → resistor 470 Ω → LED merah (<b class="tip" data-k="vf">Vf</b> 2,0 V). Atur mode, kondisi rangkaian, dan titik ukur, lalu perhatikan bacaan dan peringatannya.</p>
+  <div class="grid lg:grid-cols-2 gap-6">
+   <div>
+    <div class="lcd"><span x-text="mm.txt"></span> <span class="text-xl" x-text="mm.unit"></span></div>
+    <div class="grid grid-cols-4 gap-2 mt-3">
+     <template x-for="m in modes" :key="m[0]"><button class="mb" :class="mode===m[0]&&'on'" @click="mode=m[0]" x-text="m[1]"></button></template>
+    </div>
+    <p class="note mt-3" x-text="jack"></p>
+    <p class="mt-2 text-xs" :class="mm.bad?'text-red-300':'text-slate-300'" x-text="mm.note"></p>
+   </div>
+   <div class="space-y-3 text-sm">
+    <div class="flex flex-wrap gap-2">
+     <button class="mb" :class="bat&&'on'" @click="bat=!bat" x-text="bat?'Baterai TERPASANG':'Baterai DILEPAS'"></button>
+     <button class="mb" :class="sw&&'on'" @click="sw=!sw" x-text="sw?'Saklar TERTUTUP':'Saklar TERBUKA'"></button>
+     <button class="mb" :class="rev&&'on'" @click="rev=!rev" x-text="rev?'Colok TERBALIK':'Colok merah = +'"></button>
+    </div>
+    <div class="lbl">Titik ukur (colok dipasang di mana?)</div>
+    <div class="grid grid-cols-2 gap-2">
+     <template x-for="p in points" :key="p[0]"><button class="mb text-left" :class="point===p[0]&&'on'" @click="point=p[0]" x-text="p[1]"></button></template>
+    </div>
+    <div class="bg-slate-900 rounded-xl p-3 text-xs text-slate-300 space-y-1">
+     <div><b class="tip" data-k="par">Voltmeter</b>: dipasang <b>paralel</b> (di kedua ujung komponen), rangkaian tetap menyala.</div>
+     <div><b>Ampermeter</b>: dipasang <b>seri</b> (rangkaian diputus, meter jadi bagian jalur arus).</div>
+     <div><b>Ohm / dioda</b>: komponen dilepas dari tegangan; meter memakai baterai sendiri.</div>
+    </div>
+   </div>
+  </div>
+  <div class="grid md:grid-cols-2 gap-3 mt-4 text-xs">
+   <div class="warn"><b>Mode arus adalah yang paling berbahaya.</b> Colok di jack ampere + paralel ke sumber = hubung singkat. Pada baterai EV, ini bisa menimbulkan percikan, kabel meleleh, atau ledakan sekering. Untuk arus ratusan Ampere pakai <b class="tip" data-k="clamp">clamp meter</b>, bukan multimeter biasa.</div>
+   <div class="note">Pilih alat sesuai <b class="tip" data-k="cat">kategori CAT</b>-nya, ganti dial saat colok dilepas dari rangkaian tegangan tinggi, dan jangan mengukur Ω pada rangkaian bertegangan.</div>
+  </div>
+ </div>
+</section>
+
+<!-- 3 RESISTOR -->
+<section x-show="tab==='res'" class="space-y-5">
+ <div class="card">
+  <h2 class="text-xl font-bold mb-1">Resistor: pembatas arus</h2>
+  <p class="text-sm text-slate-300 mb-4">Resistor menghambat arus (<b class="tip" data-k="ohm">Ohm</b>) dan membuang kelebihannya sebagai panas. Nilainya dibaca dari <b class="tip" data-k="band">gelang warna</b>.</p>
+  <div class="grid lg:grid-cols-2 gap-6">
+   <div>
+    <div class="bg-slate-900 rounded-xl p-5 flex items-center justify-center">
+     <div class="w-6 h-1 bg-slate-500"></div>
+     <div class="flex items-stretch gap-3 px-5 h-16 rounded-xl" style="background:#d6b88a">
+      <div class="w-3" :style="`background:${COL[b1][1]}`"></div><div class="w-3" :style="`background:${COL[b2][1]}`"></div><div class="w-3" :style="`background:${cn(mul)[1]}`"></div><div class="w-3 ml-3" :style="`background:${tolOf[1]}`"></div>
+     </div>
+     <div class="w-6 h-1 bg-slate-500"></div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mt-4 text-sm">
+     <label>Gelang 1 (digit)<select class="in mt-1" x-model.number="b1"><template x-for="(c,i) in COL"><option :value="i" x-text="i+' '+c[0]"></option></template></select></label>
+     <label>Gelang 2 (digit)<select class="in mt-1" x-model.number="b2"><template x-for="(c,i) in COL"><option :value="i" x-text="i+' '+c[0]"></option></template></select></label>
+     <label>Gelang 3 (pengali ×10ⁿ)<select class="in mt-1" x-model.number="mul"><template x-for="m in mulOpts"><option :value="m" x-text="'10^'+m+' '+cn(m)[0]"></option></template></select></label>
+     <label>Gelang 4 (<b class="tip" data-k="tol">toleransi</b>)<select class="in mt-1" x-model.number="tol"><template x-for="t in tolOpts"><option :value="t[0]" x-text="'±'+t[0]+'% '+t[1]"></option></template></select></label>
+    </div>
+   </div>
+   <div class="space-y-3">
+    <div class="card !p-4 text-center"><div class="lbl">Nilai resistor</div><div class="big text-amber-400" x-text="fo(rv)"></div><div class="lbl" x-text="'sebenarnya antara '+fo(rv*(1-tol/100))+' dan '+fo(rv*(1+tol/100))"></div></div>
+    <div class="text-sm space-y-2">
+     <label class="block">Arus yang melewatinya: <b x-text="rI+' mA'"></b><input type="range" min="1" max="200" x-model.number="rI"></label>
+     <div class="grid grid-cols-2 gap-2 text-center">
+      <div class="bg-slate-900 rounded-lg p-2"><div class="lbl">Drop tegangan (V=I·R)</div><b x-text="f(rI/1000*rv,2)+' V'"></b></div>
+      <div class="bg-slate-900 rounded-lg p-2"><div class="lbl">Panas (P=I²R)</div><b :class="rP>0.25?'text-red-400':'text-green-400'" x-text="f(rP*1000,0)+' mW'"></b></div>
+     </div>
+     <p class="warn" x-show="rP>0.25">Melebihi 0,25 W (resistor ¼ W standar): panas &amp; gosong. Pakai resistor daya lebih besar.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="card">
+  <h3 class="font-bold mb-3">Resistor disusun seri &amp; paralel</h3>
+  <div class="grid sm:grid-cols-4 gap-3 text-sm items-end">
+   <label>R1 (Ω)<input type="number" class="in mt-1" x-model.number="ra"></label>
+   <label>R2 (Ω)<input type="number" class="in mt-1" x-model.number="rb"></label>
+   <div class="bg-slate-900 rounded-lg p-3 text-center"><div class="lbl"><b class="tip" data-k="seri">Seri</b>: R1+R2</div><b x-text="fo(ra+rb)"></b></div>
+   <div class="bg-slate-900 rounded-lg p-3 text-center"><div class="lbl"><b class="tip" data-k="para">Paralel</b>: R1·R2/(R1+R2)</div><b x-text="fo(ra*rb/(ra+rb))"></b></div>
+  </div>
+  <p class="lbl mt-2">Paralel selalu lebih kecil dari resistor terkecilnya, karena jalur arus bertambah.</p>
+ </div>
+</section>
+
+<!-- 4 LED -->
+<section x-show="tab==='led'" class="space-y-5">
+ <div class="card">
+  <h2 class="text-xl font-bold mb-1">LED &amp; Resistor Pembatas Arus</h2>
+  <p class="text-sm text-slate-300 mb-4">LED adalah dioda: arus hanya mengalir dari <b class="tip" data-k="anoda">anoda</b> (+, kaki panjang) ke <b class="tip" data-k="katoda">katoda</b> (−). Setelah menyala, tegangan LED hampir tetap (<b class="tip" data-k="vf">Vf</b>) sehingga <b>arusnya tak terbatas sendiri</b> — resistor wajib.</p>
+  <div class="grid lg:grid-cols-2 gap-6">
+   <div class="space-y-3 text-sm">
+    <label class="block">Warna LED<select class="in mt-1" x-model.number="lc"><template x-for="(c,i) in LEDS"><option :value="i" x-text="c[0]+' (Vf ±'+c[1]+' V)'"></option></template></select></label>
+    <label class="block">Tegangan sumber: <b x-text="lV+' V'"></b><input type="range" min="3" max="24" step="0.5" x-model.number="lV"></label>
+    <label class="block">Arus target LED: <b x-text="lT+' mA'"></b><input type="range" min="2" max="25" x-model.number="lT"></label>
+    <label class="block">Resistor terpasang (Ω): <b x-text="lR"></b><input type="range" min="0" max="2200" step="10" x-model.number="lR"></label>
+    <div class="note">R ideal = (Vsumber − Vf) ÷ I = <b x-text="f(lIdeal,0)+' Ω'"></b> → pakai nilai standar terdekat ke atas: <b x-text="lStd+' Ω'"></b> (<b class="tip" data-k="e12">deret E12</b>).</div>
+   </div>
+   <div class="text-center space-y-3">
+    <div class="bg-slate-900 rounded-xl p-6 flex flex-col items-center">
+     <div class="w-20 h-20 rounded-full" :style="`background:${LEDS[lc][2]};opacity:${lOn?Math.max(.12,Math.min(1,lI*1000/20)):.12};box-shadow:0 0 ${lOn?Math.min(50,lI*1000*2.2):0}px ${LEDS[lc][2]}`"></div>
+     <div class="mt-3 font-bold" :class="lBad?'text-red-400':'text-green-400'" x-text="lStat"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-2">
+     <div class="card !p-3"><div class="lbl">Arus LED</div><b x-text="f(lI*1000,1)+' mA'"></b></div>
+     <div class="card !p-3"><div class="lbl">Panas di R</div><b x-text="f(lI*lI*lR*1000,0)+' mW'"></b></div>
+     <div class="card !p-3"><div class="lbl">Boros R+LED</div><b x-text="f(lI*lV*1000,0)+' mW'"></b></div>
+    </div>
+    <p class="lbl">LED kecil umumnya 20 mA maks. Lampu indikator EV biasa memakai 5–10 mA. Tanpa resistor (0 Ω) LED praktis langsung rusak, kecuali sumbernya sangat dibatasi.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- 5 DIVIDER -->
+<section x-show="tab==='div'" class="space-y-5">
+ <div class="card">
+  <h2 class="text-xl font-bold mb-1">Pembagi Tegangan</h2>
+  <p class="text-sm text-slate-300 mb-4">Dua resistor seri membagi tegangan sebanding hambatannya: <b>Vout = Vin × R2 ÷ (R1 + R2)</b>. Dipakai untuk mengecilkan tegangan agar bisa dibaca mikrokontroler/ADC, misalnya memantau baterai 72 V.</p>
+  <div class="grid lg:grid-cols-2 gap-6">
+   <div class="space-y-3 text-sm">
+    <label class="block">Vin: <b x-text="dvIn+' V'"></b><input type="range" min="1" max="100" step="0.5" x-model.number="dvIn"></label>
+    <div class="grid grid-cols-2 gap-3">
+     <label>R1 (Ω, atas)<input type="number" class="in mt-1" x-model.number="r1"></label>
+     <label>R2 (Ω, bawah)<input type="number" class="in mt-1" x-model.number="r2"></label>
+    </div>
+    <label class="block">Beban pada Vout, RL (Ω; 0 = tanpa beban): <b class="tip" data-k="load">?</b><input type="number" class="in mt-1" x-model.number="rl"></label>
+    <button class="mb on" @click="dvIn=84;r1=100000;r2=4100;rl=0">Contoh: baterai 72 V (penuh 84 V) → ADC 3,3 V</button>
+   </div>
+   <div class="space-y-3">
+    <svg viewBox="0 0 220 150" class="w-full bg-slate-900 rounded-xl border border-slate-700 max-h-52">
+     <text x="10" y="20" fill="#60a5fa" font-size="12" x-text="'Vin '+f(dvIn,1)+' V'"></text>
+     <line x1="40" y1="25" x2="40" y2="40" stroke="#fff"/><rect x="30" y="40" width="20" height="34" fill="#334155" stroke="#fff"/><text x="58" y="62" fill="#fff" font-size="11">R1</text>
+     <line x1="40" y1="74" x2="40" y2="90" stroke="#fff"/><line x1="40" y1="82" x2="130" y2="82" stroke="#fbbf24"/><text x="135" y="86" fill="#fbbf24" font-size="12" x-text="'Vout '+f(vo,2)+' V'"></text>
+     <rect x="30" y="90" width="20" height="34" fill="#334155" stroke="#fff"/><text x="58" y="112" fill="#fff" font-size="11">R2</text>
+     <line x1="40" y1="124" x2="40" y2="140" stroke="#fff"/><line x1="28" y1="140" x2="52" y2="140" stroke="#fff"/><text x="58" y="144" fill="#94a3b8" font-size="10">0 V</text>
+    </svg>
+    <div class="grid grid-cols-3 gap-2 text-center">
+     <div class="card !p-3"><div class="lbl">Vout</div><b class="text-amber-400 text-xl" x-text="f(vo,2)+' V'"></b></div>
+     <div class="card !p-3"><div class="lbl">Rasio</div><b x-text="f(vo/dvIn*100,1)+'%'"></b></div>
+     <div class="card !p-3"><div class="lbl">Arus bocor</div><b x-text="f(dvIn/(r1+r2)*1000,3)+' mA'"></b></div>
+    </div>
+    <p class="warn" x-show="rl>0&&rl<10*r2">Beban RL terlalu kecil: Vout turun dari <b x-text="f(dvIn*r2/(r1+r2),2)"></b> V (tanpa beban) ke <b x-text="f(vo,2)"></b> V. Pembagi tegangan <u>bukan</u> sumber daya; hanya cocok untuk beban berimpedansi tinggi (ADC, voltmeter).</p>
+    <p class="note">Nilai besar (puluhan kΩ) membuat arus bocor kecil dan hemat baterai; tetapi terlalu besar membuat pembacaan ADC rentan derau. Pastikan resistor tahan tegangan &amp; daya pada Vin tertinggi.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- 6 KAPASITOR -->
+<section x-show="tab==='cap'" class="space-y-5">
+ <div class="card">
+  <h2 class="text-xl font-bold mb-1">Kapasitor: penampung muatan sementara</h2>
+  <p class="text-sm text-slate-300 mb-4">Kapasitor (satuan Farad, praktisnya µF) mengisi dan mengosongkan diri lewat resistor dengan <b class="tip" data-k="tau">konstanta waktu τ = R × C</b>. Setelah 1τ tegangan mencapai ±63%, setelah 5τ dianggap penuh (±99%).</p>
+  <div class="grid lg:grid-cols-2 gap-6">
+   <div class="space-y-3 text-sm">
+    <div class="flex gap-2"><button class="mb" :class="chg&&'on'" @click="chg=true">Mengisi (charge)</button><button class="mb" :class="!chg&&'on'" @click="chg=false">Mengosongkan (discharge)</button></div>
+    <label class="block">Vsumber: <b x-text="cV+' V'"></b><input type="range" min="3" max="96" x-model.number="cV"></label>
+    <div class="grid grid-cols-2 gap-3">
+     <label>C<select class="in mt-1" x-model.number="cC"><template x-for="c in [10,100,470,1000,4700,10000]"><option :value="c" x-text="c+' µF'"></option></template></select></label>
+     <label>R<select class="in mt-1" x-model.number="cR"><template x-for="r in [10,100,1000,10000,100000]"><option :value="r" x-text="fo(r)"></option></template></select></label>
+    </div>
+    <label class="block">Waktu berjalan: <b x-text="f(ct,2)+' τ = '+ft(ct*tau)"></b><input type="range" min="0" max="5" step="0.05" x-model.number="ct"></label>
+   </div>
+   <div>
+    <svg viewBox="0 0 300 150" class="w-full bg-slate-900 rounded-xl border border-slate-700">
+     <line x1="30" y1="120" x2="290" y2="120" stroke="#475569"/><line x1="30" y1="15" x2="30" y2="120" stroke="#475569"/>
+     <line x1="30" y1="52" x2="290" y2="52" stroke="#334155" stroke-dasharray="4"/><text x="34" y="48" fill="#94a3b8" font-size="9">63% / 37%</text>
+     <path :d="curve" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+     <circle :cx="30+ct*52" :cy="120-vt/cV*100" r="5" fill="#fbbf24"/>
+     <text x="30" y="135" fill="#94a3b8" font-size="9">0</text><text x="276" y="135" fill="#94a3b8" font-size="9">5τ</text>
+    </svg>
+    <div class="grid grid-cols-3 gap-2 text-center mt-3">
+     <div class="card !p-3"><div class="lbl">Tegangan C</div><b class="text-amber-400" x-text="f(vt,2)+' V'"></b></div>
+     <div class="card !p-3"><div class="lbl">Arus</div><b x-text="fa(it)"></b></div>
+     <div class="card !p-3"><div class="lbl">Energi ½CV²</div><b x-text="f(0.5*cC*1e-6*vt*vt,3)+' J'"></b></div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="grid md:grid-cols-2 gap-4 text-sm">
+  <div class="warn"><b>Kapasitor di controller EV.</b> Controller berisi kapasitor besar (ribuan µF). Saat baterai disambung, kapasitor kosong menarik lonjakan arus (≈ V/R sangat besar) → percikan di konektor. Itu sebabnya ada resistor <b class="tip" data-k="pre">pre-charge</b> atau konektor anti-spark. Simulasikan: pilih C 10000 µF, R 10 Ω, V 72 V.</div>
+  <div class="note"><b>Keselamatan:</b> kapasitor elektrolit punya polaritas (+/−); pasang terbalik bisa meledak. Kapasitor besar tetap menyimpan muatan setelah dimatikan, jadi kosongkan lewat resistor, bukan obeng.</div>
+ </div>
+</section>
+
+<!-- 7 SALAH KAPRAH -->
+<section x-show="tab==='salah'" class="card space-y-3 text-sm">
+ <h2 class="text-xl font-bold">Salah Kaprah &amp; Langkah Berikutnya</h2>
+ <template x-for="m in myths" :key="m[0]"><div class="bg-slate-900 rounded-xl p-4"><div class="text-red-300">✗ <span x-text="m[0]"></span></div><div class="text-green-300 mt-1">✓ <span x-text="m[1]"></span></div></div></template>
+ <p class="note">Sudah paham dasar ini? Lanjut ke materi <a class="underline font-semibold" href="https://claude.ai/artifact/MoV4Qdf8jDHqHTR5TGQxpZ" target="_blank" rel="noopener">Dasar Listrik → Motor Listrik Roda 2</a>.</p>
+</section>
+</main>
+<footer class="text-center text-xs text-slate-500 py-6">Alat belajar konsep. Angka simulasi disederhanakan; ikuti datasheet dan standar keselamatan saat merakit.</footer>
+
+<script>
+const TIPS={
+volt:"Volt (V) = beda potensial antara DUA titik, seperti beda tinggi air. Selalu disebut 'antara' titik A dan titik B.",
+amp:"Ampere (A) = jumlah muatan yang lewat per detik. Diukur dengan memutus jalur dan menyisipkan alat ukur secara seri.",
+ohm:"Ohm (Ω) = hambatan. I = V ÷ R. 1 kΩ = 1.000 Ω, 1 MΩ = 1.000.000 Ω.",
+dc:"DC (arus searah): arah tetap, misalnya baterai. Kutub + dan − tidak berganti.",
+ac:"AC (arus bolak-balik): arah dan tegangan berganti terus (50 Hz di Indonesia). Listrik PLN rumah ±220 V AC.",
+gnd:"Ground/0 V adalah titik acuan yang kita sepakati. Tegangan lain dinyatakan terhadap titik ini. Pada EV biasanya kutub negatif baterai/sasis.",
+vf:"Vf (forward voltage) = tegangan jatuh pada LED saat menyala: merah ±2 V, hijau ±2,2 V, biru/putih ±3 V. Bukan tegangan 'maksimum'.",
+par:"Paralel: alat ukur dihubungkan ke KEDUA ujung komponen tanpa memutus rangkaian. Voltmeter punya hambatan dalam sangat besar sehingga nyaris tidak mengganggu.",
+clamp:"Clamp meter mengukur arus lewat medan magnet di sekitar kabel, tanpa memutus rangkaian. Cocok untuk arus besar di EV.",
+cat:"CAT (kategori pengukuran) menunjukkan tegangan lonjakan yang aman bagi alat. Untuk kerja kelistrikan pakai multimeter ber-CAT sesuai lingkungan, jangan alat murah tanpa rating.",
+band:"Warna pada resistor: hitam 0, coklat 1, merah 2, oranye 3, kuning 4, hijau 5, biru 6, ungu 7, abu-abu 8, putih 9. Dua gelang pertama digit, ketiga pengali, keempat toleransi.",
+tol:"Toleransi = penyimpangan nilai yang diizinkan. ±5% pada 1 kΩ berarti nilai nyata 950–1050 Ω.",
+seri:"Seri: komponen berderet satu jalur. Arus sama, hambatan dijumlahkan, tegangan terbagi.",
+para:"Paralel: komponen bercabang. Tegangan sama, arus terbagi, hambatan total mengecil.",
+anoda:"Anoda = kaki + LED (biasanya kaki lebih panjang). Dihubungkan ke arah tegangan lebih tinggi.",
+katoda:"Katoda = kaki − LED (kaki lebih pendek, sisi tepi rata pada lensa).",
+e12:"Deret E12: nilai standar resistor (10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82 × 10ⁿ). Nilai hasil hitung dibulatkan ke yang terdekat.",
+load:"Beban pada Vout yang paralel dengan R2 menurunkan hambatan bawah, sehingga Vout turun. Semakin kecil RL, semakin besar penurunannya.",
+tau:"τ (tau) = R × C. Contoh 1 kΩ × 1000 µF = 1 detik. Setelah 5τ kapasitor praktis penuh atau kosong.",
+pre:"Pre-charge: mengisi kapasitor controller lewat resistor dulu sebelum kontak utama tersambung, agar tidak ada lonjakan arus besar."};
+const tp=document.getElementById('tp');
+function sh(e){const t=e.target.closest&&e.target.closest('.tip');if(!t){if(e.type!=='mouseover')tp.style.display='none';return}
+ t.tabIndex=0;tp.textContent=TIPS[t.dataset.k]||'';tp.style.display='block';const r=t.getBoundingClientRect();
+ tp.style.left=Math.min(Math.max(8,r.left),innerWidth-tp.offsetWidth-8)+'px';
+ let y=r.bottom+6;if(y+tp.offsetHeight>innerHeight)y=r.top-tp.offsetHeight-6;tp.style.top=y+'px'}
+['mouseover','focusin','click'].forEach(n=>document.addEventListener(n,sh));
+document.addEventListener('mouseout',e=>{if(e.target.closest&&e.target.closest('.tip'))tp.style.display='none'});
+
+function app(){return{
+ tab:'dasar',
+ tabs:[['dasar','1 Rangkaian'],['mm','2 Multimeter'],['res','3 Resistor'],['led','4 LED'],['div','5 Pembagi Tegangan'],['cap','6 Kapasitor'],['salah','7 Salah Kaprah']],
+ sw:true,dV:9,dR:470,
+ mode:'V',bat:true,rev:false,point:'bat',
+ modes:[['V','V DC'],['A','Ampere'],['R','Ω'],['D','Dioda ▷|']],
+ points:[['bat','Baterai'],['r','Resistor 470 Ω'],['led','LED merah'],['seri','Putus jalur (seri)']],
+ COL:[['Hitam','#111'],['Coklat','#7c4a1e'],['Merah','#ef4444'],['Oranye','#f97316'],['Kuning','#facc15'],['Hijau','#22c55e'],['Biru','#3b82f6'],['Ungu','#a855f7'],['Abu-abu','#9ca3af'],['Putih','#f8fafc']],
+ mulOpts:[0,1,2,3,4,5,6,-1,-2],tolOpts:[[1,'Coklat','#7c4a1e'],[2,'Merah','#ef4444'],[5,'Emas','#d4af37'],[10,'Perak','#c0c0c0']],
+ b1:4,b2:7,mul:2,tol:5,rI:10,ra:1000,rb:2200,
+ LEDS:[['Merah',2.0,'#ef4444'],['Kuning',2.1,'#facc15'],['Hijau',2.2,'#22c55e'],['Biru',3.0,'#3b82f6'],['Putih',3.2,'#f1f5f9']],
+ lc:0,lV:9,lT:10,lR:330,
+ dvIn:12,r1:10000,r2:10000,rl:0,
+ chg:true,cV:12,cC:1000,cR:1000,ct:1,
+ f(x,d){return Number(x).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})},
+ fo(r){return r>=1e6?this.f(r/1e6,2)+' MΩ':r>=1e3?this.f(r/1e3,2)+' kΩ':this.f(r,1)+' Ω'},
+ ft(s){return s>=1?this.f(s,2)+' s':this.f(s*1000,1)+' ms'},
+ fa(a){return a>=1?this.f(a,2)+' A':a>=0.001?this.f(a*1000,2)+' mA':this.f(a*1e6,1)+' µA'},
+ cn(v){return v>=0?this.COL[v]:v===-1?['Emas','#d4af37']:['Perak','#c0c0c0']},
+ get tolOf(){return this.tolOpts.find(t=>t[0]===this.tol)},
+ get rv(){return (this.b1*10+this.b2)*Math.pow(10,this.mul)},
+ get rP(){return Math.pow(this.rI/1000,2)*this.rv},
+ get jack(){return {V:'Colok merah → jack VΩ, hitam → COM. Dial ke V⎓ (DC).',A:'Colok merah → jack mA/A (bukan VΩ!), hitam → COM. Dial ke A. Rangkaian harus diputus & meter disisipkan seri.',R:'Colok merah → jack VΩ. Dial ke Ω. Komponen harus tidak bertegangan.',D:'Colok merah → jack VΩ (merah = +, ke anoda). Dial ke ▷|. Meter menampilkan tegangan maju dioda/LED.'}[this.mode]},
+ get mm(){const {mode,bat,sw,point,rev}=this,live=bat&&sw,I=live?7/470:0,sg=rev?-1:1,o=(t,u,n,b)=>({txt:t,unit:u,note:n,bad:!!b}),v=x=>this.f(x*sg,2);
+  if(mode==='V'){
+   if(!bat)return o('0,00','V','Baterai dilepas: tidak ada tegangan di mana pun.');
+   if(point==='bat')return o(v(9),'V','Tegangan baterai selalu terbaca 9 V walau saklar terbuka (sumber ada, arus tidak).');
+   if(point==='seri')return o(live?v(9):'0,00','V','Voltmeter dipasang SERI: hambatan dalamnya sangat besar menahan arus, LED padam. Cara pakai salah — voltmeter harus paralel.',1);
+   if(!sw)return o('0,00','V','Saklar terbuka → tidak ada arus → tidak ada drop tegangan di komponen ini.');
+   return o(point==='r'?v(I*470):v(2),'V',point==='r'?'Drop tegangan di R = I × R = 14,9 mA × 470 Ω ≈ 7 V. 9 V = 7 V (R) + 2 V (LED).':'Tegangan LED saat menyala ≈ Vf = 2 V, hampir tetap.')}
+  if(mode==='A'){
+   if(!bat)return o('0,00','mA','Tanpa sumber tidak ada arus.');
+   if(point!=='seri')return o('FUSE','','⚠ Ampermeter dipasang PARALEL = hubung singkat! Pada baterai kuat, sekering meter putus atau kabel panas. Selalu SERI.',1);
+   return o(this.f(I*1000*sg,1),'mA',sw?'Arus seri sama di semua titik rangkaian: ≈ (9 − 2) V ÷ 470 Ω = 14,9 mA.':'Saklar terbuka → loop putus → 0 mA.')}
+  if(mode==='R'){
+   if(bat)return o('ERR','','⚠ Jangan ukur hambatan saat rangkaian bertegangan: hasil salah dan meter bisa rusak. Lepas baterai dulu.',1);
+   if(point==='r')return o('470','Ω','Resistor terbaca sesuai nilainya (±toleransi). Lepas satu kaki dari rangkaian bila ada komponen paralel.');
+   return o('OL','','OL = over limit (hambatan sangat besar/rangkaian terbuka). LED perlu >1,8 V sehingga tidak "terbaca" di mode Ω; gunakan mode dioda.')}
+  if(bat)return o('ERR','','⚠ Mode dioda: lepas baterai dulu.',1);
+  if(point==='led')return rev?o('OL','','Polaritas terbalik: LED menahan arus balik. Itu normal; dioda hanya menghantar satu arah.'):o('1,95','V','Tegangan maju LED terbaca ±1,9–2,0 V (LED bisa menyala redup). Ini cara memeriksa LED/dioda dan menentukan anoda–katoda.');
+  return o('OL','','Mode dioda dipakai untuk dioda/LED, bukan untuk komponen ini.')},
+ get lIdeal(){return Math.max(0,(this.lV-this.LEDS[this.lc][1])/(this.lT/1000))},
+ get lStd(){const e=[10,12,15,18,22,27,33,39,47,56,68,82];if(this.lIdeal<=0)return 0;const d=Math.pow(10,Math.floor(Math.log10(this.lIdeal))-1);for(let n=0;n<2;n++)for(const x of e)if(x*d*Math.pow(10,n)>=this.lIdeal-0.01)return x*d*Math.pow(10,n)},
+ get lI(){const d=this.lV-this.LEDS[this.lc][1];return d<=0?0:Math.min(d/Math.max(this.lR,0.5),1)},
+ get lOn(){return this.lI>0.0003},
+ get lBad(){return this.lI>0.03},
+ get lStat(){const i=this.lI*1000;return i<0.3?'LED padam (tegangan kurang dari Vf)':i>30?'BAHAYA: LED rusak/terbakar':i>22?'Terlalu terang, umur LED menurun':i<3?'Sangat redup':'Menyala normal'},
+ get vo(){const rp=this.rl>0?this.r2*this.rl/(this.r2+this.rl):this.r2;return this.dvIn*rp/(this.r1+rp)},
+ get tau(){return this.cR*this.cC*1e-6},
+ vAt(x){return this.chg?this.cV*(1-Math.exp(-x)):this.cV*Math.exp(-x)},
+ get vt(){return this.vAt(this.ct)},
+ get it(){return this.cV/this.cR*Math.exp(-this.ct)},
+ get curve(){let p='';for(let x=0;x<=5.001;x+=0.1)p+=(x?'L':'M')+(30+x*52)+' '+(120-this.vAt(x)/this.cV*100)+' ';return p},
+ myths:[
+  ["Ada tegangan berarti ada arus.","Arus butuh jalur tertutup. Saklar terbuka: tegangan ada, arus nol."],
+  ["Multimeter bisa dipasang sembarang untuk semua pengukuran.","Voltmeter paralel, ampermeter seri. Ampermeter paralel = hubung singkat."],
+  ["LED cukup disambung ke baterai.","LED perlu resistor/pembatas arus. Tegangan LED hampir konstan, arus naik sangat cepat jika tak dibatasi."],
+  ["Pembagi tegangan bisa dipakai sebagai catu daya beban.","Beban berarus menurunkan Vout. Pembagi cocok untuk sinyal/ADC berimpedansi tinggi, bukan menyuplai daya."],
+  ["Kapasitor sama dengan baterai kecil.","Kapasitor menyimpan energi sedikit tetapi bisa melepas cepat; tegangannya turun linear-eksponensial saat dikosongkan, dan ia berbahaya jika bermuatan tinggi."],
+  ["Resistor ¼ W aman untuk semua arus.","Panas = I²R. Cek daya resistor, bukan hanya nilai Ω."]]
+}}
+</script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Belajar Baterai Motor Listrik R2</title>
+<style>
+:root{--bg:#eef1f4;--fg:#14202b;--card:#fff;--mut:#5a6b7a;--ac:#0e7c86;--ok:#2e8b57;--warn:#c77700;--bad:#c0392b;--bd:#d3dae1;--tipbg:#14202b;--tipfg:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f171e;--fg:#e4ebf1;--card:#18232d;--mut:#93a4b3;--ac:#3fc1cc;--ok:#4cc58a;--warn:#f0a63a;--bad:#ef6a5b;--bd:#2c3b48;--tipbg:#e4ebf1;--tipfg:#0f171e}}
+:root[data-theme="dark"]{--bg:#0f171e;--fg:#e4ebf1;--card:#18232d;--mut:#93a4b3;--ac:#3fc1cc;--ok:#4cc58a;--warn:#f0a63a;--bad:#ef6a5b;--bd:#2c3b48;--tipbg:#e4ebf1;--tipfg:#0f171e}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.2em 0}h2{font-size:1.25rem;margin:1.2em 0 .4em}h3{font-size:1.05rem;margin:1em 0 .3em}
+p,li{max-width:70ch}.mut{color:var(--mut);font-size:.9rem}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 0;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{flex:none;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;font:inherit;font-size:.92rem;cursor:pointer}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+section[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin:12px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+label{display:block;font-size:.88rem;color:var(--mut);margin-top:8px}
+input,select{width:100%;padding:7px 9px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit}
+input[type=range]{padding:0}
+.out{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:12px}
+.out div{border-left:4px solid var(--ac);padding:4px 10px;background:var(--bg);border-radius:4px}
+.out b{display:block;font-size:1.25rem;font-variant-numeric:tabular-nums}.out span{font-size:.8rem;color:var(--mut)}
+.tip{border-bottom:1.5px dotted var(--ac);cursor:help}
+#tp{position:fixed;display:none;max-width:280px;background:var(--tipbg);color:var(--tipfg);padding:8px 10px;border-radius:6px;font-size:.85rem;line-height:1.45;z-index:50;pointer-events:none}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+.btn{border:1px solid var(--ac);background:transparent;color:var(--ac);padding:7px 12px;border-radius:7px;font:inherit;cursor:pointer;margin:3px 3px 3px 0}
+.btn.on{background:var(--ac);color:#fff}.btn.bad{border-color:var(--bad);color:var(--bad)}
+.warn{border-left:4px solid var(--warn);padding:6px 10px;background:var(--bg);border-radius:4px;margin:10px 0;font-size:.92rem}
+.bad{color:var(--bad)}.ok{color:var(--ok)}
+.cells{display:flex;gap:8px;align-items:flex-end;height:190px;margin:10px 0}
+.cell{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.78rem;font-variant-numeric:tabular-nums}
+.bar{width:100%;border-radius:5px 5px 0 0;background:var(--ac);transition:height .1s}
+.lamp{display:inline-block;padding:2px 9px;border-radius:12px;font-size:.82rem;color:#fff;background:var(--ok)}.lamp.off{background:var(--bad)}
+#log{font-size:.85rem;min-height:5em;margin:6px 0;padding-left:18px}
+details{border-bottom:1px solid var(--bd);padding:8px 0}summary{cursor:pointer;font-weight:600}
+svg{max-width:100%;height:auto}
+</style></head><body><main>
+<h1>Belajar Baterai Motor Listrik R2</h1>
+<p class="mut">Semua istilah bergaris titik punya penjelasan: arahkan kursor atau ketuk. Tegangan tinggi dan baterai lithium berbahaya; halaman ini untuk belajar konsep, bukan panduan merakit pack.</p>
+<nav>
+<button class="on" data-t="s1">1. Dasar listrik</button><button data-t="s2">2. Jenis baterai</button><button data-t="s3">3. Seri-paralel</button><button data-t="s4">4. Simulasi BMS</button><button data-t="s5">5. Salah kaprah</button>
+</nav>
+
+<section id="s1">
+<h2>Besaran dasar</h2>
+<div class="card"><p>Analogi air: <span class="tip" data-tip="Tegangan (Volt) = 'tekanan' listrik. Menentukan seberapa kuat dorongan arus. Pada motor listrik, tegangan pack menentukan kecepatan putar maksimum motor (RPM tanpa beban).">tegangan (V)</span> seperti tekanan air, <span class="tip" data-tip="Arus (Ampere) = jumlah muatan yang mengalir per detik. Arus besar menimbulkan panas pada kabel, sambungan, dan sel (rugi panas = I²×R).">arus (A)</span> seperti debit, <span class="tip" data-tip="Daya (Watt) = V × A. Laju pemakaian energi sesaat. Daya motor 3000 W artinya mengambil 3000 joule tiap detik.">daya (W)</span> adalah tekanan × debit, dan <span class="tip" data-tip="Energi (Watt-jam) = V × Ah. Inilah ukuran 'isi tangki' yang sebenarnya, dan yang menentukan jarak tempuh.">energi (Wh)</span> adalah isi tangkinya.</p>
+<div class="warn"><b>Ah bukan energi.</b> <span class="tip" data-tip="Ampere-jam = muatan. 40 Ah berarti bisa memberi 40 A selama 1 jam. Dua pack 40 Ah, satu 48 V dan satu 72 V, punya energi berbeda (1920 Wh vs 2880 Wh).">Ah</span> hanya muatan. Bandingkan baterai dengan Wh, bukan Ah saja.</div></div>
+<div class="card"><h3>Kalkulator energi dan jarak tempuh</h3>
+<div class="grid">
+<div><label><span class="tip" data-tip="Tegangan nominal pack, bukan tegangan saat penuh. Contoh: 20S NMC = 20 × 3,6 V = 72 V.">Tegangan nominal (V)</span><input id="cv" type="number" value="72"></label></div>
+<div><label>Kapasitas (Ah)<input id="ca" type="number" value="40"></label></div>
+<div><label><span class="tip" data-tip="Daya rata-rata yang dipakai motor saat berkendara. Bukan daya puncak/peak.">Daya rata-rata (W)</span><input id="cp" type="number" value="2000"></label></div>
+<div><label><span class="tip" data-tip="Konsumsi energi per km. Motor listrik R2 umumnya sekitar 25–50 Wh/km, tergantung bobot, kecepatan, tanjakan, angin, dan gaya berkendara.">Konsumsi (Wh/km)</span><input id="cw" type="number" value="35"></label></div>
+<div><label><span class="tip" data-tip="Persen energi yang aman dipakai. Menyisakan cadangan melindungi sel dan mengurangi kapasitas yang hilang akibat sag tegangan dan batas BMS.">Energi terpakai (%)</span><input id="cd" type="number" value="90"></label></div></div>
+<div class="out" id="co"></div>
+<p class="mut">Perhatikan: pada daya sama, tegangan lebih tinggi membuat arus lebih kecil. Arus kecil berarti panas, rugi kabel, dan beban sel lebih ringan. Itu alasan motor yang lebih kuat memakai 60–72 V atau lebih.</p></div>
+<div class="card"><h3><span class="tip" data-tip="C-rate = arus dibagi kapasitas. 1C = arus yang menghabiskan baterai dalam 1 jam. 2C = 30 menit. Sel punya batas C-rate maksimum untuk dipakai (discharge) dan diisi (charge).">C-rate</span> dalam pack Anda</h3><p id="cr"></p></div>
+</section>
+
+<section id="s2" hidden>
+<h2>Jenis baterai (kimia sel)</h2>
+<div class="card tw"><table>
+<tr><th>Jenis</th><th>V nominal / sel</th><th>Penuh – kosong</th><th>Wh/kg</th><th>Siklus (perkiraan)</th><th>Catatan</th></tr>
+<tr><td><span class="tip" data-tip="Aki timbal-asam. Murah, berat, siklus pendek, tegangan turun jauh saat dipakai berat. Dipakai pada motor listrik murah dan sepeda listrik lama.">Timbal-asam</span></td><td>2,0 V</td><td>2,4 – 1,75 V</td><td>30–50</td><td>200–500</td><td>Murah, berat, hanya pakai ±50% kapasitas agar awet</td></tr>
+<tr><td><span class="tip" data-tip="Lithium Nickel-Manganese-Cobalt. Kepadatan energi tinggi sehingga ringan dan jaraknya jauh. Lebih sensitif terhadap panas; kurva tegangan landai sehingga estimasi SOC lebih mudah dari tegangan.">Li-ion NMC</span></td><td>3,6–3,7 V</td><td>4,2 – 3,0 V</td><td>150–250</td><td>500–1500</td><td>Paling umum di motor listrik modern (21700/18650, pouch)</td></tr>
+<tr><td><span class="tip" data-tip="Lithium Iron Phosphate (LiFePO4). Lebih stabil secara kimia dan tahan panas, siklus panjang. Kurva tegangan sangat datar, jadi SOC sulit ditebak dari tegangan saja dan BMS memakai coulomb counting.">LFP</span></td><td>3,2 V</td><td>3,65 – 2,5 V</td><td>90–160</td><td>2000–4000+</td><td>Lebih aman, lebih berat; cocok untuk pemakaian harian berat</td></tr>
+<tr><td><span class="tip" data-tip="Lithium Titanate. Super awet dan bisa dicas sangat cepat, bahkan di suhu rendah, tetapi mahal dan energinya rendah.">LTO</span></td><td>2,3 V</td><td>2,8 – 1,8 V</td><td>70–80</td><td>10000+</td><td>Mahal; cas ultra-cepat</td></tr>
+</table></div>
+<div class="warn">Nilai di atas perkiraan umum. Selalu pakai <span class="tip" data-tip="Lembar data dari pabrikan sel: berisi tegangan maks/min, arus discharge/charge maksimum, suhu operasi. Ini acuan satu-satunya yang valid untuk batas pack.">datasheet</span> sel yang benar-benar dipakai.</div>
+<h3>Bentuk sel</h3>
+<ul><li><b>Silinder</b> (18650, 21700): murah, mudah disusun, banyak di motor listrik; pack berisi ratusan sel.</li>
+<li><b>Prismatik</b>: sel besar (misal LFP 3,2 V 100 Ah+); sambungan lebih sedikit tetapi butuh penjepit/ikatan mekanis.</li>
+<li><b>Pouch</b>: tipis dan ringan, tetapi harus ditekan rata dan tidak boleh ditusuk atau dibengkokkan.</li></ul>
+<h3>Rentang tegangan sel</h3><div id="vr"></div>
+</section>
+
+<section id="s3" hidden>
+<h2>Susunan seri-paralel</h2>
+<div class="card"><p><b>Seri (S)</b> menambah <span class="tip" data-tip="Sel disambung + ke −. Tegangan dijumlahkan, kapasitas (Ah) tetap sama dengan satu sel.">tegangan</span>. <b>Paralel (P)</b> menambah <span class="tip" data-tip="Sel disambung + ke + dan − ke −. Kapasitas (Ah) dan kemampuan arus dijumlahkan; tegangan tetap sama dengan satu sel.">kapasitas dan arus</span>. Penulisan <span class="tip" data-tip="Misal 20S8P: 20 grup seri, tiap grup berisi 8 sel paralel. Total sel = 20 × 8 = 160. Dibaca: 20 seri, 8 paralel.">20S8P</span> artinya 20 grup seri, tiap grup 8 sel paralel.</p>
+<button class="btn" data-p="48,13,10,NMC">48 V (13S NMC)</button><button class="btn" data-p="60,16,12,NMC">60 V (16S NMC)</button><button class="btn" data-p="72,20,8,NMC">72 V (20S NMC)</button><button class="btn" data-p="72,24,10,LFP">76,8 V (24S LFP)</button>
+<div class="grid">
+<div><label>Kimia<select id="sc"><option value="NMC">NMC (3,6 V)</option><option value="LFP">LFP (3,2 V)</option></select></label></div>
+<div><label>Kapasitas 1 sel (Ah)<input id="sa" type="number" value="5" step="0.5"></label></div>
+<div><label><span class="tip" data-tip="Arus discharge kontinu maksimum satu sel, dari datasheet. Sel 21700 5 Ah biasanya sekitar 10–15 A. Jangan pakai angka 'peak' sebagai arus kontinu.">Arus kontinu maks/sel (A)</span><input id="si" type="number" value="10"></label></div>
+<div><label>Daya puncak motor/controller (W)<input id="sw" type="number" value="5000"></label></div>
+<div><label>Seri (S): <b id="sSv">20</b><input id="ss" type="range" min="1" max="30" value="20"></label></div>
+<div><label>Paralel (P): <b id="sPv">8</b><input id="sp" type="range" min="1" max="20" value="8"></label></div></div>
+<svg id="sv" viewBox="0 0 700 230" role="img" aria-label="Susunan sel seri-paralel"></svg>
+<div class="out" id="so"></div><div id="sx"></div></div>
+<div class="card"><h3>Kaitan dengan motor R2</h3>
+<ul><li><span class="tip" data-tip="Kelas tegangan umum motor listrik R2: 48 V (ringan), 60 V, 72 V (umum untuk motor kelas 125 cc ke atas). Tegangan pack harus cocok dengan controller dan motor.">48/60/72 V</span> adalah kelas tegangan yang sering dipakai; makin berat/kencang motornya, makin tinggi tegangannya.</li>
+<li>Tegangan tinggi: arus lebih kecil untuk daya sama, tetapi butuh lebih banyak sel seri dan BMS dengan lebih banyak kanal balancing.</li>
+<li>Paralel diperlukan agar <span class="tip" data-tip="Arus pack maksimum = arus kontinu maks tiap sel × jumlah P. Jika controller menarik lebih dari itu, sel panas dan umur turun, atau BMS memutus.">arus pack</span> cukup untuk akselerasi dan tanjakan.</li>
+<li>Sel dalam satu paralel otomatis menyamakan tegangan; sel antar seri tidak, itulah sebabnya perlu balancing.</li></ul>
+<div class="warn"><b>Jangan mencampur</b> sel berbeda merek, kapasitas, usia, atau kimia dalam satu pack; sel lemah menjadi penentu seluruh pack.</div></div>
+</section>
+
+<section id="s4" hidden>
+<h2>Simulasi BMS (6S, model sederhana)</h2>
+<p class="mut">Model disederhanakan dan dipercepat untuk belajar. Sel awal sengaja tidak seimbang. Coba <b>Cas</b> tanpa balancing, lalu ulangi dengan balancing.</p>
+<div class="card">
+<button class="btn on" data-m="idle">Diam</button><button class="btn" data-m="charge">Cas</button><button class="btn" data-m="discharge">Pakai (beban)</button>
+<label>Arus: <b id="ia">10</b> A<input id="ir" type="range" min="0" max="70" value="10"></label>
+<label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="bl" style="width:auto"> <span class="tip" data-tip="Passive balancing: sel bertegangan tertinggi dibuang sedikit energinya lewat resistor menjadi panas, supaya sel lain bisa mengejar. Hanya efektif saat sel hampir penuh. Active balancing memindahkan energi antarsel dan lebih efisien tetapi lebih mahal.">Balancing</span></label>
+<div class="cells" id="cl"></div>
+<div class="out" id="bo"></div>
+<p>MOSFET cas <span class="lamp" id="lc">ON</span> MOSFET pakai <span class="lamp" id="ld">ON</span></p>
+<button class="btn bad" id="bs">Hubung singkat</button><button class="btn bad" id="bh">Panaskan +15°C</button><button class="btn" id="br">Reset</button>
+<ul id="log"></ul></div>
+<div class="card"><h3>Fungsi proteksi BMS</h3><div class="tw"><table>
+<tr><th>Proteksi</th><th>Pemicu pada simulasi</th><th>Tujuan</th></tr>
+<tr><td><span class="tip" data-tip="Over-Voltage Protection. Mengisi sel di atas batas (NMC 4,25 V) menyebabkan lithium plating, panas, hingga thermal runaway. BMS memutus jalur cas.">OVP</span></td><td>sel ≥ 4,25 V</td><td>Cegah overcharge; cas aktif lagi saat sel &lt; 4,15 V</td></tr>
+<tr><td><span class="tip" data-tip="Under-Voltage Protection. Sel yang dikosongkan terlalu dalam rusak permanen (tembaga larut). BMS memutus jalur pakai.">UVP</span></td><td>sel ≤ 3,0 V</td><td>Cegah over-discharge; pakai aktif lagi saat sel &gt; 3,2 V</td></tr>
+<tr><td><span class="tip" data-tip="Over-Current Protection. Arus melebihi kemampuan sel/kabel/MOSFET. Biasanya ada tundaan singkat agar lonjakan sesaat tidak langsung memutus.">OCP</span></td><td>beban &gt; 50 A</td><td>Lindungi sel, kabel, MOSFET</td></tr>
+<tr><td><span class="tip" data-tip="Short-Circuit Protection. Arus ribuan ampere; BMS harus memutus dalam hitungan mikrodetik. Fuse tetap diperlukan sebagai cadangan.">SCP</span></td><td>tombol Hubung singkat</td><td>Putus cepat; butuh reset</td></tr>
+<tr><td><span class="tip" data-tip="Over-Temperature Protection. Sel lithium sebaiknya &lt; 60°C saat dipakai. BMS juga biasanya melarang cas di bawah 0°C (lithium plating).">OTP</span></td><td>suhu ≥ 60°C</td><td>Cegah panas berlebih; aktif lagi &lt; 50°C</td></tr>
+</table></div>
+<p class="mut">BMS juga menghitung <span class="tip" data-tip="State of Charge: persen isi baterai. Dihitung dari tegangan (kurang akurat pada LFP) dan coulomb counting (integral arus).">SOC</span>, mencatat data, dan berkomunikasi dengan dashboard/controller (misal CAN). BMS ≠ pengaman mutlak; fuse dan desain mekanis tetap penting.</p></div>
+</section>
+
+<section id="s5" hidden>
+<h2>Salah kaprah yang sering terjadi</h2>
+<div class="card">
+<details><summary>"Baterai 40 Ah pasti lebih besar dari 30 Ah."</summary><p>Belum tentu. Bandingkan Wh = V × Ah. 48 V 40 Ah = 1920 Wh, sedangkan 72 V 30 Ah = 2160 Wh.</p></details>
+<details><summary>"Paralel membuat tegangan naik."</summary><p>Salah. Paralel menambah Ah dan kemampuan arus, tegangan tetap. Seri yang menambah tegangan.</p></details>
+<details><summary>"Daya motor 3 kW berarti baterai dikuras 3 kW terus."</summary><p>3 kW itu daya nominal motor. Konsumsi nyata berubah tiap detik tergantung kecepatan, tanjakan, dan akselerasi. Energi dihitung dari Wh/km rata-rata.</p></details>
+<details><summary>"Tegangan baterai turun berarti kapasitas rusak."</summary><p>Saat beban berat, tegangan turun sesaat (sag) akibat hambatan dalam. Tegangan pulih saat beban hilang. Sag besar tetapi permanen bisa pertanda sel menua.</p></details>
+<details><summary>"BMS balancing membuat semua sel selalu sama."</summary><p>Balancing pasif umumnya hanya bekerja di dekat penuh dan dengan arus kecil (puluhan–ratusan mA). Pack yang sangat tidak seimbang butuh waktu lama atau perbaikan sel.</p></details>
+<details><summary>"Selalu cas 100% itu baik."</summary><p>Cas penuh menambah jarak tempuh harian, tetapi menyimpan baterai di 100% dalam waktu lama mempercepat penuaan NMC. LFP lebih toleran. Untuk penyimpanan lama, sisakan sekitar 40–60%.</p></details>
+<details><summary>"Sel baru tinggal disambung saja."</summary><p>Sel yang disambung paralel harus bertegangan hampir sama dulu; selisih tegangan menimbulkan arus pemerataan besar. Sambungan harus kuat dan terukur (nikel strip/busbar sesuai arus).</p></details>
+<details><summary>"BMS cukup, fuse tidak perlu."</summary><p>BMS bisa gagal (MOSFET hubung pendek). Fuse atau MCB DC pada jalur utama adalah lapisan proteksi terakhir.</p></details>
+</div></section>
+<div id="tp"></div></main>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],f=(n,d=1)=>(+n).toFixed(d).replace('.',',');
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));$$('main>section').forEach(s=>s.hidden=s.id!==b.dataset.t)});
+const tp=$('#tp');
+function showTip(e){const t=e.target.closest&&e.target.closest('.tip');if(!t){tp.style.display='none';return}
+tp.textContent=t.dataset.tip;tp.style.display='block';const r=t.getBoundingClientRect(),w=tp.offsetWidth,h=tp.offsetHeight;
+let y=r.bottom+6;if(y+h>innerHeight)y=r.top-h-6;tp.style.left=Math.min(Math.max(8,r.left),innerWidth-w-8)+'px';tp.style.top=Math.max(8,y)+'px'}
+['mouseover','click'].forEach(v=>document.addEventListener(v,showTip));
+$$('.tip').forEach(t=>t.tabIndex=0);document.addEventListener('focusin',showTip);
+/* 1 kalkulator */
+function calc(){const V=+$('#cv').value,A=+$('#ca').value,P=+$('#cp').value,W=+$('#cw').value,D=+$('#cd').value/100,Wh=V*A,u=Wh*D,I=P/V;
+$('#co').innerHTML=[[f(Wh,0)+' Wh','Energi total (V×Ah)'],[f(u,0)+' Wh','Energi terpakai'],[f(u/W,0)+' km','Perkiraan jarak'],[f(I,1)+' A','Arus pada daya rata-rata'],[f(u/P*60,0)+' menit','Waktu pada daya tsb']].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+$('#cr').textContent=`Pada ${f(P,0)} W arus pack ${f(I,1)} A, atau ${f(I/A,2)}C terhadap kapasitas ${f(A,0)} Ah. Di atas 1C, sel mulai bekerja berat; periksa batas datasheet.`}
+$$('#s1 input').forEach(i=>i.oninput=calc);calc();
+/* 2 rentang tegangan */
+$('#vr').innerHTML=[['Timbal-asam',1.75,2.4,2.0],['NMC',3.0,4.2,3.6],['LFP',2.5,3.65,3.2],['LTO',1.8,2.8,2.3]].map(c=>{const a=(c[1]-1.5)/3*100,b=(c[2]-1.5)/3*100,n=(c[3]-1.5)/3*100;return `<div style="margin:8px 0">${c[0]}: ${f(c[1],2)}–${f(c[2],2)} V<div style="position:relative;height:14px;background:var(--bd);border-radius:7px"><div style="position:absolute;left:${a}%;width:${b-a}%;height:100%;background:var(--ac);border-radius:7px;opacity:.6"></div><div style="position:absolute;left:${n}%;top:-2px;width:3px;height:18px;background:var(--fg)"></div></div></div>`}).join('')+'<p class="mut">Batang = rentang kosong–penuh; garis = tegangan nominal.</p>';
+/* 3 seri paralel */
+const vC={NMC:[3.6,4.2,3.0],LFP:[3.2,3.65,2.5]};
+function sp(){const k=vC[$('#sc').value],S=+$('#ss').value,P=+$('#sp').value,a=+$('#sa').value,ic=+$('#si').value,pw=+$('#sw').value;
+$('#sSv').textContent=S;$('#sPv').textContent=P;const V=S*k[0],Ah=a*P,Wh=V*Ah,Imax=ic*P,Ireq=pw/V;
+$('#so').innerHTML=[[`${S}S${P}P`,'Konfigurasi'],[S*P+' sel','Total sel'],[f(V,1)+' V','Nominal'],[f(S*k[1],1)+' V','Penuh'],[f(S*k[2],1)+' V','Cutoff bawah'],[f(Ah,0)+' Ah','Kapasitas'],[f(Wh,0)+' Wh','Energi'],[f(Imax,0)+' A','Arus kontinu pack maks']].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+const ok=Ireq<=Imax;$('#sx').innerHTML=`<div class="warn">Daya puncak ${f(pw,0)} W pada ${f(V,0)} V butuh ±${f(Ireq,0)} A. Kemampuan pack ${f(Imax,0)} A: <b class="${ok?'ok':'bad'}">${ok?'cukup':'tidak cukup, tambah P atau pilih sel arus lebih besar'}</b>. Untuk puncak singkat, cek juga batas arus puncak datasheet.</div>`;
+const cw=Math.max(6,Math.min(34,Math.floor(660/S)-4)),ch=Math.max(5,Math.min(16,Math.floor(180/P)-3));let h='';
+for(let i=0;i<S;i++){const x=24+i*(cw+4);h+=`<rect x="${x-2}" y="14" width="${cw+4}" height="${P*(ch+3)+2}" fill="none" stroke="var(--mut)" stroke-dasharray="3 2" rx="3"/>`;
+for(let j=0;j<P;j++)h+=`<rect x="${x}" y="${16+j*(ch+3)}" width="${cw}" height="${ch}" rx="2" fill="var(--ac)"/>`;
+if(i<S-1)h+=`<line x1="${x+cw/2}" y1="8" x2="${x+cw/2+cw+4}" y2="8" stroke="var(--warn)" stroke-width="2"/>`}
+h+=`<text x="2" y="14" fill="var(--fg)" font-size="12">+</text><text x="${28+S*(cw+4)}" y="14" fill="var(--fg)" font-size="12">−</text>`;
+h+=`<text x="24" y="${P*(ch+3)+34}" fill="var(--mut)" font-size="12">Tiap kotak putus-putus = 1 grup paralel (${P} sel). Garis oranye = sambungan seri antargrup (${S} grup).</text>`;$('#sv').innerHTML=h}
+$$('#s3 input,#s3 select').forEach(i=>i.oninput=sp);
+$$('[data-p]').forEach(b=>b.onclick=()=>{const[v,s,p,c]=b.dataset.p.split(',');$('#sc').value=c;$('#ss').value=s;$('#sp').value=p;sp()});sp();
+/* 4 BMS */
+let cells,mode,temp,chg,dsg,short,log,I=0;
+const lamp=(e,on)=>{e.textContent=on?'ON':'OFF';e.className='lamp'+(on?'':' off')};
+function note(t){if(log[0]!==t){log.unshift(t);log=log.slice(0,6)}}
+function reset(){cells=[.55,.62,.48,.72,.58,.66];mode='idle';temp=30;chg=dsg=true;short=false;log=[];setMode('idle')}
+function setMode(m){mode=m;$$('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===m))}
+$$('[data-m]').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$('#ir').oninput=e=>$('#ia').textContent=e.target.value;
+$('#bs').onclick=()=>{short=true;note('SCP: hubung singkat terdeteksi, semua MOSFET diputus')};
+$('#bh').onclick=()=>temp+=15;$('#br').onclick=reset;
+function tick(){const set=+$('#ir').value,rest=cells.map(s=>3+1.2*s),vmax=Math.max(...rest),vmin=Math.min(...rest),vavg=rest.reduce((a,b)=>a+b)/6;
+if(short){chg=dsg=false}
+if(vmax>=4.25&&chg){chg=false;note('OVP: sel tertinggi '+f(vmax,2)+' V, cas diputus')}
+if(vmax<4.15&&!chg&&!short&&temp<60)chg=true;
+if(vmin<=3.0&&dsg){dsg=false;note('UVP: sel terendah '+f(vmin,2)+' V, pakai diputus')}
+if(vmin>3.2&&!dsg&&!short&&temp<60)dsg=true;
+if(mode=='discharge'&&set>50&&dsg){dsg=false;note('OCP: arus '+set+' A melebihi 50 A')}
+if(temp>=60&&(chg||dsg)){chg=dsg=false;note('OTP: suhu '+f(temp,0)+'°C, MOSFET diputus')}
+if(temp<50&&!short&&vmax<4.15&&vmin>3.2){chg=dsg=true}
+I=0;if(mode=='charge'&&chg)I=set*Math.min(1,Math.max(.03,(4.2-vavg)/.1));if(mode=='discharge'&&dsg)I=set;
+const sgn=mode=='charge'?1:-1,bleed=[];
+cells=cells.map((s,i)=>{let d=I?sgn*I*.001:0;const b=$('#bl').checked&&rest[i]>4.0&&rest[i]-vmin>.01;bleed[i]=b;if(b)d-=.004;return Math.max(0,s+d)});
+temp+=I*I*.0008-(temp-30)*.03;
+const v=cells.map((s,i)=>3+1.2*s+(I?sgn*I*.006:0)*(1));
+$('#cl').innerHTML=v.map((x,i)=>{const p=Math.max(2,Math.min(100,(x-2.8)/1.6*100)),c=x>=4.25?'var(--bad)':x<=3.05?'var(--warn)':'var(--ac)';return `<div class="cell">${bleed[i]?'<span class="bad">bleed</span>':''}<b>${f(x,3)}</b><div class="bar" style="height:${p}%;background:${c}"></div>S${i+1}</div>`}).join('');
+const mx=Math.max(...v),mn=Math.min(...v);
+$('#bo').innerHTML=[[f(v.reduce((a,b)=>a+b),2)+' V','Tegangan pack'],[f((mx-mn)*1000,0)+' mV','Selisih sel (max−min)'],[f(I,1)+' A','Arus nyata'],[f(temp,0)+' °C','Suhu'],[f(cells.reduce((a,b)=>a+b)/6*100,0)+'%','SOC rata-rata']].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+lamp($('#lc'),chg);lamp($('#ld'),dsg);$('#log').innerHTML=log.map(l=>`<li>${l}</li>`).join('')||'<li class="mut">Belum ada kejadian proteksi.</li>'}
+reset();setInterval(tick,100);
+</script></body></html>

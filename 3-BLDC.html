@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Belajar Motor BLDC Motor Listrik R2</title>
+<style>
+:root{--bg:#eef1f4;--fg:#14202b;--card:#fff;--mut:#5a6b7a;--ac:#0e7c86;--ok:#2e8b57;--warn:#c77700;--bad:#c0392b;--bd:#d3dae1;--tipbg:#14202b;--tipfg:#fff;--n:#c0392b;--s:#2a6fb0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f171e;--fg:#e4ebf1;--card:#18232d;--mut:#93a4b3;--ac:#3fc1cc;--ok:#4cc58a;--warn:#f0a63a;--bad:#ef6a5b;--bd:#2c3b48;--tipbg:#e4ebf1;--tipfg:#0f171e;--n:#ef6a5b;--s:#5aa2e6}}
+:root[data-theme="dark"]{--bg:#0f171e;--fg:#e4ebf1;--card:#18232d;--mut:#93a4b3;--ac:#3fc1cc;--ok:#4cc58a;--warn:#f0a63a;--bad:#ef6a5b;--bd:#2c3b48;--tipbg:#e4ebf1;--tipfg:#0f171e;--n:#ef6a5b;--s:#5aa2e6}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.2em 0}h2{font-size:1.25rem;margin:1.2em 0 .4em}h3{font-size:1.05rem;margin:1em 0 .3em}
+p,li{max-width:70ch}.mut{color:var(--mut);font-size:.9rem}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 0;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{flex:none;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;font:inherit;font-size:.92rem;cursor:pointer}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+section[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin:12px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+label{display:block;font-size:.88rem;color:var(--mut);margin-top:8px}
+input,select{width:100%;padding:7px 9px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit}
+input[type=range]{padding:0}
+.out{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:12px}
+.out div{border-left:4px solid var(--ac);padding:4px 10px;background:var(--bg);border-radius:4px}
+.out b{display:block;font-size:1.2rem;font-variant-numeric:tabular-nums}.out span{font-size:.8rem;color:var(--mut)}
+.tip{border-bottom:1.5px dotted var(--ac);cursor:help}
+#tp{position:fixed;display:none;max-width:280px;background:var(--tipbg);color:var(--tipfg);padding:8px 10px;border-radius:6px;font-size:.85rem;line-height:1.45;z-index:50;pointer-events:none}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left}
+tr.hl td{background:var(--ac);color:#fff}
+.btn{border:1px solid var(--ac);background:transparent;color:var(--ac);padding:7px 12px;border-radius:7px;font:inherit;cursor:pointer;margin:3px 3px 3px 0}
+.btn.on{background:var(--ac);color:#fff}
+.warn{border-left:4px solid var(--warn);padding:6px 10px;background:var(--bg);border-radius:4px;margin:10px 0;font-size:.92rem}
+.bad{color:var(--bad)}.ok{color:var(--ok)}
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:start}
+details{border-bottom:1px solid var(--bd);padding:8px 0}summary{cursor:pointer;font-weight:600}
+svg{max-width:100%;height:auto}
+</style></head><body><main>
+<h1>Belajar Motor BLDC Motor Listrik R2</h1>
+<p class="mut"></p>
+<nav>
+<button class="on" data-t="s1">1. Elektromagnet</button><button data-t="s2">2. Besi jadi magnet</button><button data-t="s3">3. Gaya, torsi, back-EMF</button><button data-t="s4">4. Cara kerja motor hub</button><button data-t="s5">5. Kurva motor</button><button data-t="s6">6. Kontroler &amp; salah kaprah</button>
+</nav>
+
+<section id="s1">
+<div class="card"><h3>Konsep Dasar</h3><ol>
+<li>Magnet saling <b>tarik dan dorong</b>: kutub berbeda menarik, kutub sama menolak.</li>
+<li>Kawat yang dialiri listrik bisa dijadikan <b>magnet yang dapat dinyalakan, dimatikan, dan dibalik</b> (elektromagnet).</li>
+<li>Di roda motor listrik ada <b>magnet tetap</b> pada cincin luar yang ikut berputar, dan <b>deretan elektromagnet diam</b> di tengah. Elektromagnet menarik dan mendorong magnet roda bergantian, sehingga roda berputar.</li>
+<li><b>Kontroler</b> adalah pengatur waktu: ia tahu posisi magnet roda, lalu menyalakan elektromagnet yang tepat pada saat yang tepat.</li>
+<li><b>Gas</b> hanya mengatur seberapa kuat elektromagnet dinyalakan.</li></ol></div>
+<h2>Listrik membuat magnet</h2>
+<div class="card"><p>Kawat yang dialiri <span class="tip" data-tip="Arus (ampere) = banyaknya listrik yang mengalir per detik. Makin besar arus, makin kuat magnetnya, tetapi makin panas kawatnya.">arus</span> menjadi bersifat magnet. Jika kawat digulung menjadi <span class="tip" data-tip="Kumparan = kawat yang dililit berkali-kali. Magnet tiap lilitan saling menguatkan.">kumparan</span> dan diberi <span class="tip" data-tip="Besi lunak memusatkan dan melipatgandakan magnet kumparan ratusan hingga ribuan kali, lalu 'lupa' magnetnya saat listrik dimatikan.">inti besi</span>, magnetnya jauh lebih kuat. Geser slider dan lihat kekuatannya. Kumparan seperti inilah yang ada di dalam motor.</p>
+<div class="grid">
+<div><label>Arus I: <b id="eiv">3</b> A<input id="ei" type="range" min="0" max="20" step=".5" value="3"></label></div>
+<div><label><span class="tip" data-tip="Jumlah lilitan kawat. Medan magnet sebanding dengan N × I (ampere-lilit). Lilitan banyak butuh arus lebih kecil, tetapi kawat lebih panjang berarti hambatan lebih besar.">Lilitan N</span>: <b id="env">100</b><input id="en" type="range" min="10" max="500" step="10" value="100"></label></div>
+<div><label>Inti<select id="em"><option value="1">Udara (tanpa inti)</option><option value="2000" selected>Besi lunak (μr ≈ 2000)</option></select></label></div></div>
+<svg id="esv" viewBox="0 0 520 170" role="img" aria-label="Kumparan elektromagnet"></svg>
+<div class="out" id="eo"></div>
+<div class="warn"><span class="tip" data-tip="Saturasi magnetik: pada kerapatan fluks sekitar 1,6–2 T domain magnet di besi sudah searah semua. Menambah arus lagi hanya menambah panas, tidak menambah medan secara berarti.">Saturasi</span>: pada inti besi, menaikkan arus terus tidak menaikkan medan terus. Arus berlebih hanya menjadi panas (I²R).</div></div>
+</section>
+
+<section id="s2" hidden>
+<h2>Mengapa besi bisa menjadi magnet?</h2>
+<div class="card"><p>Besi tersusun dari <span class="tip" data-tip="Domain magnet = kelompok atom kecil yang arah magnetnya sama. Ukurannya mikroskopis.">magnet-magnet mungil</span>. Pada besi biasa arah magnet mungil itu acak dan saling meniadakan, sehingga besi tidak menarik paku. Saat didekati kumparan berarus, semuanya ikut searah dan besi menjadi magnet. <b>Besi lunak</b> (inti stator) kembali acak saat listrik dimatikan, sehingga bisa dinyalakan dan dimatikan. <b>Magnet keras</b> (NdFeB, di roda) tetap searah: itulah <span class="tip" data-tip="Magnet permanen = magnet yang tidak butuh listrik. Rotor motor hub memakainya.">magnet permanen</span>. Geser slider ke kanan lalu ke kiri dan perhatikan anak panah merah/biru.</p>
+<label>Bahan<select id="dm"><option value="soft">Besi lunak (inti stator)</option><option value="hard">Magnet keras (NdFeB, rotor)</option></select></label>
+<label>Medan luar H: <b id="dhv">0,00</b><input id="dh" type="range" min="-1" max="1" step=".01" value="0"></label>
+<button class="btn" id="dsw">Sapu medan otomatis</button><button class="btn" id="dre">Demagnetisasi / panaskan melewati suhu Curie</button>
+<div class="two"><svg id="dsv" viewBox="0 0 280 210"></svg><svg id="dpl" viewBox="0 0 240 210"></svg></div>
+<div class="out" id="do"></div>
+<p class="mut">Kurva kanan: magnetisasi M terhadap H (<span class="tip" data-tip="Histeresis: magnetisasi tidak mengikuti jalur yang sama saat medan naik dan turun. Luas loop = energi yang hilang menjadi panas tiap siklus (rugi inti).">histeresis</span>). Besi lunak: loop sempit, rugi inti kecil, cocok untuk stator. Magnet keras: loop lebar, M tersisa saat H = 0 (<span class="tip" data-tip="Remanensi = magnetisasi yang tersisa setelah medan luar dihilangkan.">remanensi</span>). Model disederhanakan (domain hanya naik/turun).</p></div>
+<div class="warn">Magnet NdFeB kehilangan kekuatan jika terlalu panas (batas umum 80–150 °C tergantung grade) atau terkena arus fasa berlebih. Overheat motor bisa melemahkan rotor secara permanen.</div>
+</section>
+
+<section id="s3" hidden>
+<h2>Gaya, torsi, dan GGL balik</h2>
+<div class="card"><p>Dua hal penting: (1) kawat berarus di dekat magnet <b>terdorong</b>; dorongan yang memutar roda disebut <span class="tip" data-tip="Torsi = tenaga putar (N·m). Menentukan seberapa kuat motor menarik dan menanjak.">torsi</span>. (2) Jika kawat digerakkan melewati magnet, ia justru <b>menghasilkan listrik</b> yang melawan baterai, disebut <span class="tip" data-tip="Back-EMF (GGL balik): tegangan yang dibangkitkan motor saat berputar. Makin cepat berputar, makin besar. Ketika hampir sama dengan tegangan baterai, motor tak bisa lebih cepat lagi.">back-EMF</span>. Motor yang berputar juga bekerja seperti generator kecil. Kalkulator di bawah untuk yang ingin melihat angka; pemula boleh langsung ke kotak "Poin kunci".</p>
+<div class="grid">
+<div><label>Medan B (T)<input id="fb" type="number" value="1" step=".1"></label></div>
+<div><label>Arus I (A)<input id="fi" type="number" value="50"></label></div>
+<div><label>Panjang aktif L (m)<input id="fl" type="number" value=".05" step=".01"></label></div>
+<div><label>Jumlah konduktor aktif<input id="fz" type="number" value="100"></label></div>
+<div><label>Jari-jari r (m)<input id="fr" type="number" value=".1" step=".01"></label></div>
+<div><label>Kecepatan konduktor v (m/s)<input id="fv" type="number" value="10"></label></div></div>
+<div class="out" id="fo"></div>
+<div class="warn"><b>Poin kunci:</b> makin besar <b>arus</b>, makin kuat dorongan (tenaga tanjakan dan akselerasi). Makin tinggi <b>tegangan</b>, makin cepat roda bisa berputar. Arus = tenaga dorong, tegangan = batas kecepatan.</div></div>
+</section>
+
+<section id="s4" hidden>
+<h2>Cara kerja motor hub</h2>
+<div class="card"><p>Pada motor hub, <b>kumparan (stator) diam di tengah dan menempel ke as roda</b>, sedangkan <b>magnet (rotor) ada di cincin luar</b> yang menyatu dengan velg: cincin magnet dan roda berputar bersama. Kontroler menyalakan kumparan bergantian: <b style="color:var(--n)">merah</b> = kutub utara (N), <b style="color:var(--s)">biru</b> = kutub selatan (S), abu-abu = mati. Magnet roda ditarik ke kumparan yang menyala, lalu kumparan berikutnya dinyalakan, dan seterusnya sehingga roda terus berputar. Pengaturan giliran ini disebut <span class="tip" data-tip="Komutasi = mengatur kumparan mana yang menyala pada saat yang tepat, mengikuti posisi magnet. Posisi dibaca sensor Hall.">komutasi</span>. "BLDC" artinya motor tanpa sikat: giliran diatur elektronik, bukan sikat karbon.</p>
+<p class="mut">Gambar disederhanakan: 12 kumparan, 8 magnet (4 pasang kutub), tiap fasa menyalakan 4 kumparan sekaligus. Titik kuning di pelek menunjukkan putaran roda.</p>
+<button class="btn on" id="tp1">Jalan</button><button class="btn" id="tdr">Arah: maju</button>
+<label>Kecepatan roda: <b id="tsv">0,10</b> putaran/detik<input id="ts" type="range" min=".02" max=".5" step=".01" value=".1"></label>
+<label>Posisi magnet saat dijeda (sudut listrik): <b id="tav">0</b>°<input id="ta" type="range" min="0" max="359" value="0"></label>
+<svg id="tsvg" viewBox="0 0 300 320" style="max-width:340px;display:block;margin:auto" role="img" aria-label="Animasi motor hub: kumparan di dalam, magnet di luar"></svg>
+<div class="out" id="to"></div>
+<div class="tw"><table id="tt"><tr><th>Langkah</th><th>Hall H1H2H3</th><th>Fasa +</th><th>Fasa −</th><th>Fasa mengambang</th></tr></table></div>
+<p class="mut">Cara membaca: <b>Sensor Hall</b> = tiga sensor kecil yang memberi tahu kontroler posisi magnet (hijau = sedang mendeteksi kutub N). Dari kodenya kontroler tahu kumparan mana yang harus menyala. <b>Fasa A, B, C</b> = tiga kelompok kumparan yang dinyalakan bergiliran; pada tiap saat dua fasa menyala (satu N, satu S) dan satu istirahat. Perhatikan: satu putaran listrik hanya memutar roda &frac14; putaran, karena ada banyak kutub.</p></div>
+<div class="card"><h3>Kutub banyak, putaran listrik lebih cepat</h3>
+<div class="grid"><div><label><span class="tip" data-tip="Pasangan kutub (N+S). Motor hub R2 biasanya punya puluhan kutub magnet (belasan pasang). Satu putaran mekanik = p putaran listrik.">Pasangan kutub p</span><input id="pp" type="number" value="23"></label></div>
+<div><label>Putaran roda (rpm)<input id="pr" type="number" value="500"></label></div></div>
+<div class="out" id="po"></div>
+<ul><li><b>Hub motor</b>: langsung di roda, tanpa rantai; torsi besar dengan banyak kutub; kecepatan putar rendah.</li>
+<li><b>Mid-drive</b>: motor kecil kecepatan tinggi + reduksi rantai/gigi; lebih ringan di bagian tak-terpegas tetapi ada perawatan transmisi.</li></ul></div>
+</section>
+
+<section id="s5" hidden>
+<h2>Kurva karakteristik motor</h2>
+<div class="card"><p>Bayangkan baterai sebagai sumber tenaga dan gas sebagai pengatur berapa banyak tenaga dialirkan. Geser <b>beban torsi</b> (seperti menanjak atau membonceng): arus naik, kecepatan turun, efisiensi turun, panas naik. Model disederhanakan sehingga hasilnya <span class="tip" data-tip="Dihitung dengan V = Ke·ω + I·R, tanpa rugi inti, gesekan, hambatan angin, atau field weakening.">perkiraan awal</span>.</p>
+<div class="grid">
+<div><label>Tegangan pack (V)<select id="mv"><option>48</option><option>60</option><option selected>72</option><option>96</option></select></label></div>
+<div><label>Throttle (duty): <b id="mdv">100</b>%<input id="md" type="range" min="10" max="100" value="100"></label></div>
+<div><label><span class="tip" data-tip="Kv (rpm per volt tanpa beban). Kv rendah = torsi per ampere tinggi, kecepatan lebih rendah. Hub motor memiliki Kv rendah (sekitar 5–12 rpm/V).">Kv (rpm/V)</span><input id="mk" type="number" value="8"></label></div>
+<div><label><span class="tip" data-tip="Hambatan lilitan motor (+ kabel). Hambatan menimbulkan rugi tembaga I²R yang menjadi panas.">Hambatan R (Ω)</span><input id="mr" type="number" value=".05" step=".01"></label></div>
+<div><label>Jari-jari roda (m)<input id="mw" type="number" value=".28" step=".01"></label></div>
+<div><label><span class="tip" data-tip="Batas arus fasa dari controller. Kt × batas arus = torsi maksimum.">Batas arus fasa (A)</span><input id="ml" type="number" value="100"></label></div>
+<div><label>Beban torsi: <b id="mtv">30</b> N·m<input id="mt" type="range" min="0" max="120" value="30"></label></div></div>
+<p class="mut">Cara membaca grafik: ke kanan = beban makin berat. Garis biru turun = makin berat, makin lambat. Garis putus-putus = efisiensi.</p><svg id="msv" viewBox="0 0 400 210" role="img" aria-label="Kurva kecepatan dan efisiensi terhadap torsi"></svg>
+<div class="out" id="mo"></div><div id="mx"></div></div>
+</section>
+
+<section id="s6" hidden>
+<h2>Kontroler dan salah kaprah</h2>
+<div class="card"><h3>Peran kontroler</h3><p>Kontroler adalah otak sekaligus saklar motor: menerima gas, membaca posisi magnet, dan mengatur arus ke kumparan.</p><ul>
+<li><b>Inverter 3 fasa</b>: 6 MOSFET/IGBT mengubah DC baterai menjadi arus di tiap fasa.</li>
+<li><b>6-langkah (trapesium)</b>: sederhana, murah, ada riak torsi dan bunyi. <span class="tip" data-tip="Field Oriented Control: arus sinus diatur vektor agar medan stator tegak lurus rotor. Lebih halus, efisien, senyap, dan bisa field weakening, tetapi butuh sensor posisi baik dan komputasi.">FOC</span>: lebih halus dan efisien.</li>
+<li><b>PWM</b>: throttle mengubah duty; tegangan efektif = duty × tegangan baterai.</li>
+<li><span class="tip" data-tip="Regeneratif braking: saat motor diputar roda, back-EMF yang lebih tinggi dari tegangan baterai membuat arus mengalir balik ke baterai. Batas arus cas balik dan tegangan sel tetap harus dipatuhi BMS.">Pengereman regeneratif</span>: motor jadi generator; jangan dipakai saat baterai penuh.</li>
+<li><span class="tip" data-tip="Arus baterai ≈ duty × arus fasa pada daya sama. Saat throttle parsial, arus fasa bisa jauh lebih besar dari arus baterai.">Arus fasa ≠ arus baterai</span>: pada throttle parsial arus fasa lebih besar dari arus baterai.</li></ul></div>
+<div class="card"><h3>Salah kaprah</h3>
+<details><summary>"Daya motor 3 kW berarti 3 kW selalu terpakai."</summary><p>Itu daya nominal. Pemakaian riil tergantung beban dan throttle. Daya puncak sesaat bisa 2–3 kali nominal, dibatasi arus controller dan baterai.</p></details>
+<details><summary>"Tegangan lebih tinggi pasti membuat torsi lebih besar."</summary><p>Torsi ∝ arus. Tegangan lebih tinggi menaikkan <i>kecepatan maksimum</i> dan memungkinkan daya sama dengan arus lebih kecil.</p></details>
+<details><summary>"Motor brushless tidak butuh perawatan sama sekali."</summary><p>Tanpa sikat, tetapi bantalan (bearing), sambungan, sensor Hall, dan kabel tetap perlu dicek. Panas berlebih merusak isolasi lilitan dan melemahkan magnet.</p></details>
+<details><summary>"Hall sensor rusak, tinggal ganti kabel fasa acak."</summary><p>Urutan fasa dan Hall harus cocok. Salah urutan membuat motor bergetar, panas, atau arus melonjak. Ikuti prosedur pencocokan pabrikan.</p></details>
+<details><summary>"Motor yang 'panas' pasti rusak."</summary><p>Panas wajar sampai batas suhu insulasi dan magnet. Perhatikan sensor suhu motor dan penurunan daya otomatis (derating) controller.</p></details>
+<details><summary>"Kecepatan maksimum ditentukan daya saja."</summary><p>Ditentukan juga oleh back-EMF vs tegangan baterai, hambatan angin (naik pangkat tiga terhadap kecepatan), dan batas controller.</p></details></div>
+<div class="warn">Konsep motor dan baterai saling bergantung: batas arus controller harus sesuai kemampuan pack dan BMS (lihat halaman baterai).</div>
+</section>
+<div id="tp"></div></main>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],f=(n,d=1)=>(+n).toFixed(d).replace('.',','),R=Math.PI/180;
+const out=(id,a)=>$(id).innerHTML=a.map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));$$('main>section').forEach(s=>s.hidden=s.id!==b.dataset.t)});
+const tp=$('#tp');
+function showTip(e){const t=e.target.closest&&e.target.closest('.tip');if(!t){tp.style.display='none';return}
+tp.textContent=t.dataset.tip;tp.style.display='block';const r=t.getBoundingClientRect(),w=tp.offsetWidth,h=tp.offsetHeight;let y=r.bottom+6;if(y+h>innerHeight)y=r.top-h-6;tp.style.left=Math.min(Math.max(8,r.left),innerWidth-w-8)+'px';tp.style.top=Math.max(8,y)+'px'}
+['mouseover','click'].forEach(v=>document.addEventListener(v,showTip));$$('.tip').forEach(t=>t.tabIndex=0);document.addEventListener('focusin',showTip);
+/* 1 elektromagnet */
+function em(){const I=+$('#ei').value,N=+$('#en').value,mu=+$('#em').value,H=N*I/.1,m0=4e-7*Math.PI,Bs=1.8,B=mu==1?m0*H:Bs*Math.tanh(m0*mu*H/Bs),Rw=N*.01,P=I*I*Rw,k=Math.min(1,B/Bs);
+$('#eiv').textContent=I;$('#env').textContent=N;
+let w='';for(let i=0;i<Math.min(30,N/10);i++)w+=`<line x1="${130+i*8}" y1="52" x2="${136+i*8}" y2="118" stroke="var(--warn)" stroke-width="2"/>`;
+$('#esv').innerHTML=`<rect x="120" y="70" width="${mu>1?260:0}" height="30" fill="var(--mut)" opacity=".6"/>${w}<ellipse cx="250" cy="85" rx="${70+k*110}" ry="${20+k*60}" fill="none" stroke="var(--ac)" stroke-width="2" opacity="${.15+k*.85}" stroke-dasharray="5 4"/><text x="390" y="90" fill="var(--n)" font-size="22" font-weight="700">N</text><text x="96" y="90" fill="var(--s)" font-size="22" font-weight="700">S</text><text x="130" y="150" fill="var(--mut)" font-size="12">Kiri ke kanan: garis medan keluar dari N, masuk ke S (arus ${I>0?'mengalir':'nol'})</text>`;
+out('#eo',[[B>=.1?f(B,2)+' T':f(B*1000,1)+' mT','Kerapatan fluks B'],[f(N*I,0)+' A·lilit','Ampere-lilit (N×I)'],[f(k*100,0)+'%','Mendekati saturasi'],[f(P,1)+' W','Panas I²R (R≈'+f(Rw,1)+' Ω)'],[mu==1?'1×':f(B/(m0*H||1),0)+'×','Penguatan oleh inti']])}
+$$('#s1 input,#s1 select').forEach(i=>i.oninput=em);em();
+/* 2 domain */
+let seed=7;const rn=()=>(seed=seed*16807%2147483647)/2147483647,D=48,tilt=[],base=[],st=[];let H=0,hist=[],sweep=null;
+for(let i=0;i<D;i++){tilt[i]=(rn()-.5)*50;base[i]=rn()}
+const thr=i=>$('#dm').value=='soft'?.02+base[i]*.12:.35+base[i]*.55;
+function dres(){for(let i=0;i<D;i++)st[i]=rn()<.5?1:-1;hist=[];H=0;$('#dh').value=0;dstep(0)}
+function dstep(h){H=h;$('#dhv').textContent=f(H,2);for(let i=0;i<D;i++){const t=thr(i);if(H>t)st[i]=1;else if(H<-t)st[i]=-1}
+const M=st.reduce((a,b)=>a+b)/D;hist.push([H,M]);if(hist.length>400)hist.shift();
+let a='';for(let i=0;i<D;i++){const x=20+(i%8)*34,y=20+Math.floor(i/8)*32,ang=(st[i]>0?-90:90)+tilt[i];
+a+=`<g transform="translate(${x+8},${y+8}) rotate(${ang})"><path d="M-10 0H10M4-5L10 0L4 5" stroke="${st[i]>0?'var(--n)':'var(--s)'}" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`}
+$('#dsv').innerHTML=a+`<text x="10" y="205" font-size="11" fill="var(--mut)">Merah = domain naik, biru = turun</text>`;
+let p=hist.map(h=>`${120+h[0]*95},${95-h[1]*85}`).join(' ');
+$('#dpl').innerHTML=`<line x1="20" y1="95" x2="220" y2="95" stroke="var(--bd)"/><line x1="120" y1="5" x2="120" y2="185" stroke="var(--bd)"/><polyline points="${p}" fill="none" stroke="var(--ac)" stroke-width="2"/><circle cx="${120+H*95}" cy="${95-M*85}" r="5" fill="var(--warn)"/><text x="200" y="108" font-size="11" fill="var(--mut)">H</text><text x="124" y="14" font-size="11" fill="var(--mut)">M</text>`;
+out('#do',[[f(M*100,0)+'%','Magnetisasi saat ini M'],[Math.abs(M)>.9?'Jenuh':Math.abs(M)<.15?'Hampir 0':'Sebagian','Status domain']])}
+$('#dh').oninput=e=>dstep(+e.target.value);$('#dre').onclick=()=>{clearInterval(sweep);dres()};$('#dm').onchange=dres;
+$('#dsw').onclick=()=>{clearInterval(sweep);let a=0;sweep=setInterval(()=>{a+=.06;dstep(Math.sin(a)*1);$('#dh').value=H;if(a>13)clearInterval(sweep)},40)};dres();
+/* 3 gaya */
+function fo(){const B=+$('#fb').value,I=+$('#fi').value,L=+$('#fl').value,z=+$('#fz').value,r=+$('#fr').value,v=+$('#fv').value,F=B*I*L;out('#fo',[[f(F,2)+' N','Gaya per konduktor'],[f(F*z*r,1)+' N·m','Torsi total (F×z×r)'],[f(B*L*v,3)+' V','GGL per konduktor'],[f(B*L*v*z,1)+' V','GGL total (deret, perkiraan)']])}
+$$('#s3 input').forEach(i=>i.oninput=fo);fo();
+/* 4 komutasi */
+const pairs=[['A','B'],['A','C'],['B','C'],['B','A'],['C','A'],['C','B']],ax={A:0,B:120,C:240},sf=[330,30,90,150,210,270];
+let th=0,run=true,dir=1,last=0;
+function secOf(t){return(((Math.round((t+90-330)/60))%6)+6)%6}
+function hall(t){return[0,120,240].map(p=>Math.cos((t-p)*R)>0?1:0).join('')}
+$('#tt').innerHTML+=pairs.map((p,i)=>`<tr id="r${i}"><td>${i+1}</td><td>${hall(sf[i]-90)}</td><td>${p[0]}</td><td>${p[1]}</td><td>${'ABC'.replace(p[0],'').replace(p[1],'')}</td></tr>`).join('');
+const NP=4;
+function arc(r1,r2,a1,a2){const p=[];for(let a=a1;a<=a2;a+=4)p.push([r2*Math.cos(a*R),-r2*Math.sin(a*R)]);for(let a=a2;a>=a1;a-=4)p.push([r1*Math.cos(a*R),-r1*Math.sin(a*R)]);return p.map(q=>(150+q[0]).toFixed(1)+','+(150+q[1]).toFixed(1)).join(' ')}
+function draw(){const k=secOf(th),pr=pairs[k],ph=th/NP;let g='<circle cx="150" cy="150" r="128" fill="none" stroke="var(--mut)" stroke-width="7"/><circle cx="150" cy="150" r="108" fill="var(--bd)" opacity=".5"/>';
+for(let j=0;j<8;j++){const c=ph+45*j,m=c*R;g+=`<polygon points="${arc(80,104,c-19,c+19)}" fill="${j%2?'var(--s)':'var(--n)'}"/><text x="${150+92*Math.cos(m)}" y="${150-92*Math.sin(m)+4}" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">${j%2?'S':'N'}</text>`}
+for(let i=0;i<12;i++){const n='ABC'[i%3],s2=n==pr[0]?1:n==pr[1]?-1:0,a=30*i*R,x=150+52*Math.cos(a),y=150-52*Math.sin(a),c=s2>0?'var(--n)':s2<0?'var(--s)':'var(--mut)';g+=`<circle cx="${x}" cy="${y}" r="15" fill="${c}" opacity="${s2?1:.35}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">${n}</text>`}
+g+='<circle cx="150" cy="150" r="14" fill="var(--fg)"/><text x="150" y="154" text-anchor="middle" font-size="9" fill="var(--bg)">as</text>';
+const v=ph*R+.5;g+=`<circle cx="${150+128*Math.cos(v)}" cy="${150-128*Math.sin(v)}" r="6" fill="var(--warn)"/>`;
+[0,120,240].forEach((p,i)=>{const on=Math.cos((th-p)*R)>0;g+=`<rect x="${70+i*60}" y="290" width="46" height="22" rx="4" fill="${on?'var(--ok)':'var(--bg)'}" stroke="var(--mut)"/><text x="${93+i*60}" y="305" text-anchor="middle" font-size="12" fill="${on?'#fff':'var(--mut)'}">Hall ${i+1}</text>`});
+$('#tsvg').innerHTML=g;$$('#tt tr').forEach((r,i)=>r.classList.toggle('hl',i-1==k));
+const tq=Math.sin((sf[k]-th)*R);out('#to',[[hall(th),'Kode sensor Hall (H1H2H3)'],['Langkah '+(k+1)+' dari 6','Menyala: fasa '+pr[0]+' (N) dan '+pr[1]+' (S)'],[f(tq*100,0)+'%','Efektivitas dorongan saat ini'],[f(((ph%360)+360)%360,0)+'°','Posisi roda (360° = 1 putaran)']])}
+function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;if(run){th=((th+dir*$('#ts').value*360*NP*dt)%360+360)%360;$('#ta').value=Math.round(th);$('#tav').textContent=Math.round(th)}draw();requestAnimationFrame(loop)}
+$('#ts').oninput=e=>$('#tsv').textContent=f(e.target.value,2);$('#ta').oninput=e=>{th=+e.target.value;$('#tav').textContent=th};
+$('#tp1').onclick=e=>{run=!run;e.target.textContent=run?'Jalan':'Jeda';e.target.classList.toggle('on',run)};$('#tdr').onclick=e=>{dir=-dir;e.target.textContent='Arah: '+(dir>0?'maju':'mundur')};requestAnimationFrame(loop);
+function pl(){const p=+$('#pp').value,r=+$('#pr').value;out('#po',[[f(p*r,0)+' rpm','Putaran listrik (p × rpm)'],[f(p*r/60,0)+' Hz','Frekuensi listrik fasa']])}$$('#pp,#pr').forEach(i=>i.oninput=pl);pl();
+/* 5 kurva */
+function mc(){const Vb=+$('#mv').value,dty=+$('#md').value/100,kv=+$('#mk').value,Rm=+$('#mr').value,rw=+$('#mw').value,lim=+$('#ml').value;let T=+$('#mt').value;
+$('#mdv').textContent=Math.round(dty*100);$('#mtv').textContent=T;const Ve=Vb*dty,ke=60/(2*Math.PI*kv),Tm=ke*lim;let clip=false;if(T>Tm){T=Tm;clip=true}
+const I=T/ke,w=Math.max(0,(Ve-I*Rm)/ke),v=w*rw*3.6,Pm=T*w,Pi=Ve*I,eff=Pi>0?Pm/Pi:0,w0=Ve/ke;
+const X=t=>30+t/Tm*350,pts=[],ef=[];for(let i=0;i<=40;i++){const t=Tm*i/40,ii=t/ke,ww=Math.max(0,(Ve-ii*Rm)/ke);pts.push(`${X(t)},${190-ww/w0*160}`);ef.push(`${X(t)},${190-(ii>0?Math.max(0,(Ve-ii*Rm)/Ve):1)*160}`)}
+$('#msv').innerHTML=`<line x1="30" y1="190" x2="380" y2="190" stroke="var(--bd)"/><line x1="30" y1="20" x2="30" y2="190" stroke="var(--bd)"/><polyline points="${pts.join(' ')}" fill="none" stroke="var(--ac)" stroke-width="2.5"/><polyline points="${ef.join(' ')}" fill="none" stroke="var(--warn)" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="${X(T)}" cy="${190-w/w0*160}" r="5" fill="var(--ac)"/><circle cx="${X(T)}" cy="${190-(Ve-I*Rm)/Ve*160}" r="5" fill="var(--warn)"/><text x="30" y="14" font-size="11" fill="var(--ac)">Garis biru: kecepatan (maks ${f(w0*rw*3.6,0)} km/jam tanpa beban)</text><text x="200" y="14" font-size="11" fill="var(--warn)">Putus-putus: efisiensi</text><text x="190" y="205" font-size="11" fill="var(--mut)">Torsi (0 sampai ${f(Tm,0)} N·m)</text>`;
+out('#mo',[[f(I,0)+' A','Arus fasa'],[f(dty*I,0)+' A','Arus baterai (perkiraan)'],[f(v,0)+' km/jam','Kecepatan (tanpa hambatan angin)'],[f(Pm/1000,2)+' kW','Daya mekanik'],[f(I*I*Rm,0)+' W','Rugi tembaga I²R'],[f(eff*100,0)+'%','Efisiensi motor']]);
+$('#mx').innerHTML=clip?`<div class="warn">Torsi diminta melebihi batas arus controller (${f(Tm,0)} N·m). Torsi dibatasi.</div>`:w<=0?`<div class="warn">Motor stall: back-EMF nol, arus tinggi dan panas besar.</div>`:`<div class="warn">Semakin besar torsi (arus), semakin besar rugi I²R dan semakin turun efisiensi.</div>`}
+$$('#s5 input,#s5 select').forEach(i=>i.oninput=mc);mc();
+</script></body></html>
