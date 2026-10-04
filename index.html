@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Belajar & Simulasi Elektronika & Kendaraan Listrik</title>
+    <!-- Menggunakan Tailwind CSS untuk styling modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-800/50 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/30">
+                    ⚡
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white">Pusat Pembelajaran & Simulasi</h1>
+                    <p class="text-xs text-slate-400">Elektronika & Kendaraan Listrik R2</p>
+                </div>
+            </div>
+            <div class="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-full font-medium">
+                isr_dev portal
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-6 py-12 flex-grow w-full">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+                Pilih Modul Pembelajaran
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                Silakan pilih salah satu modul interaktif di bawah ini untuk memulai simulasi dan pembelajaran mendalam.
+            </p>
+        </div>
+
+        <!-- Daftar Kartu Modul (Grid) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Card 1: Electricity -->
+            <a href="1.ELECTRICITY.html" class="group bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 rounded-2xl p-6 transition-all duration-300 shadow-xl hover:shadow-blue-500/10 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-2xl">🔌</span>
+                        <span class="text-xs font-semibold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-md group-hover:bg-blue-500 group-hover:text-white transition-colors">Modul 01</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                        Dasar Elektronika
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Halaman web interaktif ini adalah media belajar dasar elektronika yang mencakup materi rangkaian tertutup, penggunaan multimeter, resistor, LED, pembagi tegangan, hingga kapasitor melalui simulasi digital.
+                    </p>
+                </div>
+                <div class="flex items-center text-sm font-semibold text-blue-400 group-hover:translate-x-1 transition-transform">
+                    Buka Simulasi &rarr;
+                </div>
+            </a>
+
+            <!-- Card 2: Battery -->
+            <a href="2.BATTERY.html" class="group bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-2xl p-6 transition-all duration-300 shadow-xl hover:shadow-emerald-500/10 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-2xl">🔋</span>
+                        <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md group-hover:bg-emerald-500 group-hover:text-white transition-colors">Modul 02</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
+                        Baterai Kendaraan R2
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Halaman web interaktif ini adalah media belajar mendalam mengenai komponen baterai motor listrik roda dua (R2), mulai dari pemahaman besaran dasar, karakteristik jenis kimia sel, konfigurasi seri-paralel, simulasi sistem proteksi BMS, hingga penjelasan berbagai salah kaprah seputar baterai lithium.
+                    </p>
+                </div>
+                <div class="flex items-center text-sm font-semibold text-emerald-400 group-hover:translate-x-1 transition-transform">
+                    Buka Simulasi &rarr;
+                </div>
+            </a>
+
+            <!-- Card 3: BLDC -->
+            <a href="3-BLDC.html" class="group bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 rounded-2xl p-6 transition-all duration-300 shadow-xl hover:shadow-amber-500/10 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-2xl">⚙️</span>
+                        <span class="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md group-hover:bg-amber-500 group-hover:text-white transition-colors">Modul 03</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
+                        Motor BLDC & Hub Motor R2
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Halaman web interaktif ini adalah media belajar mendalam mengenai prinsip kerja motor listrik jenis Brushless DC (BLDC) dan motor hub roda dua (R2), mulai dari konsep dasar elektromagnetisme, domain magnetik, gaya, torsi, back-EMF, animasi komutasi kumparan dan sensor Hall, kurva karakteristik kinerja, hingga pemahaman mendalam seputar peranan kontroler dan berbagai salah kaprah populer di masyarakat.
+                    </p>
+                </div>
+                <div class="flex items-center text-sm font-semibold text-amber-400 group-hover:translate-x-1 transition-transform">
+                    Buka Simulasi &rarr;
+                </div>
+            </a>
+
+            <!-- Card 4: Smart Kit Simulator -->
+            <a href="SMART-KIT-SIMULATOR.html" class="group bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-purple-500/50 rounded-2xl p-6 transition-all duration-300 shadow-xl hover:shadow-purple-500/10 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-2xl">🛵</span>
+                        <span class="text-xs font-semibold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-md group-hover:bg-purple-500 group-hover:text-white transition-colors">Modul 04</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">
+                        Smart Kit Simulator
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Simulasi kendaraan roda dua dengan Smart Kit Simulator untuk menguji pemahaman sistem penggerak dan kontrol secara menyeluruh.
+                    </p>
+                </div>
+                <div class="flex items-center text-sm font-semibold text-purple-400 group-hover:translate-x-1 transition-transform">
+                    Buka Simulasi &rarr;
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Pembelajaran Elektronika & Kendaraan Listrik. Powered by GitHub Pages.</p>
+    </footer>
+
+</body>
+</html>
