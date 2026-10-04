@@ -172,7 +172,7 @@ $('#dsw').onclick=()=>{clearInterval(sweep);let a=0;sweep=setInterval(()=>{a+=.0
 function fo(){const B=+$('#fb').value,I=+$('#fi').value,L=+$('#fl').value,z=+$('#fz').value,r=+$('#fr').value,v=+$('#fv').value,F=B*I*L;out('#fo',[[f(F,2)+' N','Gaya per konduktor'],[f(F*z*r,1)+' N·m','Torsi total (F×z×r)'],[f(B*L*v,3)+' V','GGL per konduktor'],[f(B*L*v*z,1)+' V','GGL total (deret, perkiraan)']])}
 $$('#s3 input').forEach(i=>i.oninput=fo);fo();
 /* 4 komutasi */
-const pairs=[['U','V'],['U','W'],['V','W'],['V','U'],['W','U'],['W','V']],ax={A:0,B:120,C:240},sf=[330,30,90,150,210,270];
+const pairs=[['U','V'],['U','W'],['V','W'],['V','U'],['W','U'],['W','V']],ax={U:0,V:120,W:240},sf=[330,30,90,150,210,270];
 let th=0,run=true,dir=1,last=0;
 function secOf(t){return(((Math.round((t+90-330)/60))%6)+6)%6}
 function hall(t){return[0,120,240].map(p=>Math.cos((t-p)*R)>0?1:0).join('')}
