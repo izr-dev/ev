@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif Kendaraan Listrik (EV Expert)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <header class="w-full py-6 px-6 sm:px-12 border-b border-slate-800/80 backdrop-blur-md bg-slate-900/50 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20">
+                    <svg class="w-6 h-6 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight text-white">EV MasterQuiz</h1>
+                    <p class="text-xs text-slate-400 font-medium">Uji Kompetensi Kendaraan Listrik & Teknologi Energi</p>
+                </div>
+            </div>
+            <div id="quiz-badge" class="hidden sm:flex items-center space-x-2 bg-slate-800/80 px-4 py-1.5 rounded-full border border-slate-700 text-xs font-semibold text-emerald-400">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="badge-text">20 Soal Mendalam</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 my-auto">
+        <div class="w-full max-w-3xl mx-auto">
+
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="bg-slate-800/70 border border-slate-700/80 backdrop-blur-xl rounded-3xl p-8 sm:p-12 custom-shadow text-center relative overflow-hidden">
+                <div class="absolute -right-16 -top-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <span class="inline-block px-4 py-1.5 mb-6 text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                    Sertifikasi Pengetahuan EV
+                </span>
+                
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+                    Seberapa Jauh Pemahaman Anda Tentang Kendaraan Listrik?
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+                    Uji pemahaman komprehensif Anda mengenai arsitektur baterai modern, sistem manajemen baterai (<span class="text-emerald-400 font-medium">BMS</span>), inverter & kontroller, motor <span class="text-emerald-400 font-medium">BLDC</span>, serta infrastruktur pengisian daya.
+                </p>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 text-left max-w-lg mx-auto">
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/50">
+                        <div class="text-emerald-400 font-extrabold text-xl mb-1">20</div>
+                        <div class="text-xs text-slate-400 font-medium">Soal Pilihan</div>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/50">
+                        <div class="text-indigo-400 font-extrabold text-xl mb-1">Instan</div>
+                        <div class="text-xs text-slate-400 font-medium">Umpan Balik</div>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/50">
+                        <div class="text-teal-400 font-extrabold text-xl mb-1">BMS</div>
+                        <div class="text-xs text-slate-400 font-medium">& Kimia Sel</div>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/50">
+                        <div class="text-amber-400 font-extrabold text-xl mb-1">BLDC</div>
+                        <div class="text-xs text-slate-400 font-medium">& Inverter</div>
+                    </div>
+                </div>
+
+                <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-2xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 mx-auto">
+                    <span>Mulai Kuis Sekarang</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden bg-slate-800/70 border border-slate-700/80 backdrop-blur-xl rounded-3xl p-6 sm:p-10 custom-shadow relative">
+                
+                <!-- Progress Header -->
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/60">
+                    <div class="flex items-center space-x-3">
+                        <span id="current-question-num" class="bg-emerald-500/10 text-emerald-400 font-extrabold text-sm px-3 py-1 rounded-xl border border-emerald-500/20">Soal 1 dari 20</span>
+                        <span id="topic-tag" class="text-xs font-semibold px-3 py-1 rounded-xl bg-slate-700/50 text-slate-300 hidden sm:inline-block">Kategori</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 font-medium">Skor Sementara: </span>
+                        <span id="current-score" class="font-extrabold text-emerald-400 text-base">0</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-900/80 h-2.5 rounded-full mb-8 overflow-hidden border border-slate-700/50">
+                    <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full w-0 transition-all duration-300 rounded-full"></div>
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="question-text" class="text-lg sm:text-xl font-bold text-white mb-6 leading-snug">
+                    Pertanyaan kuis akan muncul di sini...
+                </h3>
+
+                <!-- Options Container -->
+                <div id="options-container" class="space-y-3 mb-6">
+                    <!-- Opsi A, B, C, D akan di-render secara dinamis via JS -->
+                </div>
+
+                <!-- Explanation Box -->
+                <div id="explanation-box" class="hidden mb-6 p-4 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-sm">
+                    <div class="flex items-center space-x-2 font-bold mb-1" id="explanation-title">
+                        <!-- Icon & status -->
+                    </div>
+                    <p id="explanation-text" class="text-slate-300 leading-relaxed text-xs sm:text-sm"></p>
+                </div>
+
+                <!-- Navigation Footer -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-700/60">
+                    <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2 border border-slate-600/50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+                        <span>Sebelumnya</span>
+                    </button>
+                    <button id="next-btn" onclick="nextQuestion()" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2 shadow-lg shadow-emerald-500/20">
+                        <span id="next-btn-text">Selanjutnya</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="hidden bg-slate-800/70 border border-slate-700/80 backdrop-blur-xl rounded-3xl p-8 sm:p-12 custom-shadow text-center relative overflow-hidden">
+                <div class="absolute -right-16 -top-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div id="result-icon-container" class="w-20 h-20 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6 text-emerald-400 shadow-xl shadow-emerald-500/10">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+
+                <span id="result-badge-pred" class="inline-block px-4 py-1.5 mb-4 text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                    EV Expert
+                </span>
+
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">Kuis Selesai!</h2>
+                <p id="result-message" class="text-slate-300 text-sm sm:text-base mb-8">Anda telah menyelesaikan seluruh 20 pertanyaan kuis kendaraan listrik.</p>
+
+                <div class="bg-slate-900/80 border border-slate-700/80 rounded-2xl p-6 max-w-sm mx-auto mb-8 shadow-inner">
+                    <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Skor Akhir Anda</div>
+                    <div class="text-4xl sm:text-5xl font-extrabold text-emerald-400 mb-2"><span id="final-score">0</span><span class="text-slate-500 text-2xl font-normal"> / 20</span></div>
+                    <div class="text-sm font-semibold text-slate-300"><span id="final-percentage">0</span>% Akurasi Jawaban</div>
+                </div>
+
+                <button onclick="restartQuiz()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-2xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 mx-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Ulangi Kuis</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="w-full py-6 px-6 text-center text-xs text-slate-500 border-t border-slate-800/80">
+        <p>&copy; 2026 EV MasterQuiz. Standar Industri Teknologi Kendaraan Listrik.</p>
+    </footer>
+
+    <script>
+        const quizData = [
+            {
+                topic: "Baterai & Kimia Sel",
+                question: "Apa keunggulan utama dari sel baterai Lithium Iron Phosphate (LiFePO4 atau LFP) dibandingkan dengan NMC (Nickel Manganese Cobalt) pada kendaraan listrik?",
+                options: [
+                    "Kerapatan energi (energy density) yang jauh lebih tinggi",
+                    "Umur siklus (cycle life) yang lebih panjang dan stabilitas termal yang lebih tinggi",
+                    "Waktu pengisian yang lebih cepat tanpa memerlukan BMS",
+                    "Bobot yang jauh lebih ringan untuk kapasitas yang sama"
+                ],
+                correct: 1,
+                explanation: "Baterai LFP memiliki masa pakai (cycle life) yang jauh lebih lama dan sangat tahan terhadap panas (stabilitas termal tinggi), sehingga lebih aman dan tahan lama meskipun kerapatan energinya sedikit di bawah NMC."
+            },
+            {
+                topic: "Baterai & Kimia Sel",
+                question: "Dalam nomenklatur sel baterai silinder (misal 21700), apa arti dari angka '21' dan '700'?",
+                options: [
+                    "Diameter 21 mm dan tinggi 700 mm",
+                    "Kapasitas 21 Ah dan tegangan 7.00 volt",
+                    "Diameter 21 mm dan tinggi 70.0 mm (70 mm)",
+                    "Ketebalan 2.1 mm dan panjang 70 cm"
+                ],
+                correct: 2,
+                explanation: "Format penamaan sel silinder standar menggunakan 2 digit pertama untuk diameter (mm) dan 3 digit berikutnya untuk tinggi dalam persepuluh milimeter (jadi 700 berarti 70,0 mm)."
+            },
+            {
+                topic: "Battery Management System (BMS)",
+                question: "Apa fungsi utama dari proses 'Cell Balancing' yang dikelola oleh BMS pada paket baterai kendaraan listrik?",
+                options: [
+                    "Meningkatkan kapasitas total baterai melebihi spesifikasi pabrik",
+                    "Menyamakan tingkat tegangan dan state of charge (SoC) di antara semua sel/seri baterai",
+                    "Mempercepat arus pengisian dari stasiun SPKLU",
+                    "Mengubah arus AC dari grid menjadi DC untuk disimpan ke sel"
+                ],
+                correct: 1,
+                explanation: "Cell balancing memastikan setiap sel dalam rangkaian memiliki tegangan yang merata, mencegah pengisian berlebih (overcharge) pada sel tertentu dan memperpanjang umur baterai."
+            },
+            {
+                topic: "Battery Management System (BMS)",
+                question: "Parameter apa yang dipantau secara real-time oleh BMS untuk mendeteksi potensi thermal runaway pada baterai EV?",
+                options: [
+                    "Tekanan ban dan suhu kabin",
+                    "Suhu sel baterai pada titik-titik kritis dan tegangan individual sel",
+                    "Kecepatan putaran roda dan torsi motor",
+                    "Tekanan oli hidrolik rem"
+                ],
+                correct: 1,
+                explanation: "BMS terus memantau suhu internal sel dan tegangan sel. Lonjakan suhu mendadak atau penurunan tegangan anomali adalah indikator awal potensi thermal runaway."
+            },
+            {
+                topic: "Kontroller & Inverter",
+                question: "Apa fungsi utama dari Inverter Traksi (Traction Inverter) dalam sistem penggerak kendaraan listrik berbasis motor AC/BLDC?",
+                options: [
+                    "Mengubah arus searah (DC) dari baterai menjadi arus bolak-balik (AC) untuk motor, dan sebaliknya saat pengereman regeneratif",
+                    "Menurunkan tegangan tinggi baterai untuk menyalakan lampu dan klakson",
+                    "Menjaga suhu motor agar tetap dingin di bawah 50 derajat Celsius",
+                    "Meningkatkan kapasitas ampere baterai saat akselerasi mendadak"
+                ],
+                correct: 0,
+                explanation: "Inverter traksi bertindak sebagai otak daya yang mengubah DC baterai menjadi gelombang AC (atau pulsa PWM untuk BLDC) dan mengontrol frekuensi serta amplitudo untuk mengatur kecepatan motor."
+            },
+            {
+                topic: "Kontroller & Inverter",
+                question: "Teknik pensaklaran apa yang umumnya digunakan oleh kontroller EV modern untuk mengontrol kecepatan dan torsi motor listrik?",
+                options: [
+                    "Amplitude Modulation (AM)",
+                    "Pulse Width Modulation (PWM)",
+                    "Frequency Division Multiplexing (FDM)",
+                    "Direct Current Chopping (DCC)"
+                ],
+                correct: 1,
+                explanation: "PWM (Pulse Width Modulation) digunakan oleh saklar daya IGBT atau MOSFET di dalam kontroller untuk mengatur daya rata-rata yang dikirim ke motor dengan cepat menghidup-matikan tegangan."
+            },
+            {
+                topic: "Motor Listrik (BLDC)",
+                question: "Mengapa motor jenis Brushless DC (BLDC) sangat populer digunakan pada kendaraan listrik ringan (seperti skuter dan motor listrik)?",
+                options: [
+                    "Membutuhkan sikat karbon yang harus diganti tiap 10.000 km",
+                    "Efisiensi tinggi, minim perawatan karena tidak ada sikat (brush), serta rasio torsi terhadap berat yang sangat baik",
+                    "Hanya bisa menggunakan arus bolak-balik tiga fasa tanpa kontroller",
+                    "Memiliki gigi transmisi mekanis otomatis di dalam motornya"
+                ],
+                correct: 1,
+                explanation: "Motor BLDC tidak menggunakan sikat karbon (brush) sehingga gesekan mekanis berkurang drastis, menghasilkan efisiensi tinggi, perawatan minimal, dan keandalan yang tinggi."
+            },
+            {
+                topic: "Motor Listrik (BLDC)",
+                question: "Komponen apa di dalam motor BLDC yang berfungsi untuk mendeteksi posisi rotor agar kontroller tahu kapan harus memberi energi pada kumparan stator?",
+                options: [
+                    "Busi dan koil pengapian",
+                    "Sensor Hall (Hall Effect Sensor) atau sistem sensorless berbasis Back-EMF",
+                    "Alternator dan dinamo amper",
+                    "Kopling sentrifugal otomatis"
+                ],
+                correct: 1,
+                explanation: "Sensor Hall mendeteksi posisi medan magnet rotor (kutub utara/selatan), sementara beberapa sistem canggih menggunakan metode sensorless dengan membaca tegangan balik (Back-EMF)."
+            },
+            {
+                topic: "Sistem Pengisian (Charging)",
+                question: "Apa perbedaan mendasar antara pengisian AC (Slow/Normal Charging) dan DC Fast Charging pada kendaraan listrik?",
+                options: [
+                    "AC menggunakan inverter eksternal di SPKLU, DC menggunakan charger portabel di bagasi",
+                    "Pengisian AC memerlukan On-Board Charger (OBC) di dalam mobil untuk mengubah AC ke DC, sedangkan DC Fast Charger langsung menyuplai arus DC ke baterai.",
+                    "DC Fast Charging hanya bisa dilakukan saat kendaraan berjalan",
+                    "Tidak ada perbedaan waktu, hanya jenis kabelnya saja"
+                ],
+                correct: 1,
+                explanation: "Pada AC charging, daya disalurkan melalui On-Board Charger (OBC) mobil. Pada DC fast charging, konversi AC ke DC dilakukan di stasiun pengisian luar (SPKLU) sehingga daya besar bisa langsung masuk ke baterai."
+            },
+            {
+                topic: "Sistem Pengisian (Charging)",
+                question: "Apa arti dari standar konektor pengisian CCS (Combined Charging System) tipe 2 pada kendaraan listrik modern?",
+                options: [
+                    "Konektor khusus untuk pengisian daya nirkabel (wireless charging)",
+                    "Konektor gabungan yang memungkinkan pengisian daya lambat AC maupun pengisian cepat DC dalam satu soket terpadu",
+                    "Sistem pengisian khusus untuk baterai bertegangan di bawah 48 Volt",
+                    "Standar soket AC khusus buatan pabrikan Asia saja"
+                ],
+                correct: 1,
+                    explanation: "CCS Type 2 menggabungkan port pengisian AC standar dengan pin daya DC berarus tinggi di bagian bawahnya, menjadikannya standar universal di Eropa dan banyak negara lain."
+            },
+            {
+                topic: "Regenerative Braking",
+                question: "Bagaimana prinsip kerja sistem pengereman regeneratif (regenerative braking) pada kendaraan listrik?",
+                options: [
+                    "Menggunakan kampas rem magnetik khusus yang bergesekan dengan velg",
+                    "Membalikkan fungsi motor listrik menjadi generator saat perlambatan, mengubah energi kinetik menjadi energi listrik yang dikembalikan ke baterai",
+                    "Membuang tekanan oli rem menjadi panas melalui radiator",
+                    "Mematikan aliran listrik total ke roda sehingga kendaraan berhenti mendadak"
+                ],
+                correct: 1,
+                explanation: "Saat pedal gas dilepas atau rem diinjak ringan, motor bekerja sebagai generator. Hambatan magnetik memperlambat kendaraan sekaligus menghasilkan listrik yang disimpan kembali ke baterai."
+            },
+            {
+                topic: "Arsitektur & Kelistrikan EV",
+                question: "Mengapa kendaraan listrik modern beralih menggunakan arsitektur tegangan tinggi (misal: 800V) dibandingkan standar tradisional 400V?",
+                options: [
+                    "Agar lampu kendaraan menjadi lebih terang dan klakson lebih nyaring",
+                    "Memungkinkan arus yang lebih rendah untuk daya yang sama, sehingga kabel lebih ringan, rugi-rugi panas berkurang, dan pengisian daya jauh lebih cepat",
+                    "Menghilangkan kebutuhan akan baterai utama",
+                    "Membuat motor berputar dengan arah terbalik secara otomatis"
+                ],
+                correct: 1,
+                explanation: "Tegangan 800V mengurangi arus (Ampere) yang dibutuhkan untuk daya tinggi, sehingga kabel tembaga bisa lebih kecil dan ringan, serta mempercepat waktu pengisian daya di SPKLU ultra-fast."
+            },
+            {
+                topic: "Thermal Management System",
+                question: "Apa fungsi dari sistem manajemen termal (Thermal Management System) berpendingin cairan pada baterai EV berkinerja tinggi?",
+                options: [
+                    "Memanaskan kabin mobil saat musim dingin saja",
+                    "Menjaga suhu operasional sel baterai tetap optimal (mencegah overheat saat fast charging dan menjaga suhu saat cuaca dingin)",
+                    "Mengisi ulang air aki secara otomatis setiap 1.000 km",
+                    "Membersihkan debu yang menempel pada modul sel baterai"
+                ],
+                correct: 1,
+                explanation: "Suhu ekstrem (terlalu panas atau terlalu dingin) merusak umur baterai dan menurunkan performa. Sistem pendingin cair memastikan suhu sel tetap dalam rentang ideal (biasanya 20-35°C)."
+            },
+            {
+                topic: "Komponen Pendukung",
+                question: "Apa fungsi dari konverter DC-DC (DC-DC Converter) yang ada di dalam kendaraan listrik?",
+                options: [
+                    "Mengubah arus dari motor AC ke DC",
+                    "Menurunkan tegangan tinggi dari baterai utama (misal 400V/800V) menjadi tegangan rendah 12V untuk sistem kelistrikan aksesoris",
+                    "Meningkatkan tegangan aki 12V untuk menggerakkan roda utama",
+                    "Mengatur kecepatan kipas pendingin radiator motor"
+                ],
+                correct: 1,
+                explanation: "DC-DC converter berfungsi layaknya alternator pada mobil konvensional, yaitu menyuplai daya ke sistem 12V (lampu, audio, ECU, wiper) dengan mengambil daya dari baterai traksi tegangan tinggi."
+            },
+            {
+                topic: "Parameter Kinerja EV",
+                question: "Apa yang dimaksud dengan istilah 'State of Health' (SoH) pada baterai kendaraan listrik?",
+                options: [
+                    "Persentase sisa energi saat ini sebelum baterai harus diisi ulang",
+                    "Kondisi kesehatan atau kapasitas maksimum baterai saat ini dibandingkan dengan kapasitas saat pertama kali baru",
+                    "Suhu rata-rata baterai selama perjalanan jauh",
+                    "Kecepatan maksimum mobil saat baterai terisi penuh"
+                ],
+                correct: 1,
+                explanation: "SoH (State of Health) mengukur degradasi baterai. Jika SoH 85%, berarti kapasitas maksimum penyimpanan energi baterai tersebut saat ini tersisa 85% dari kondisi pabrik."
+            },
+            {
+                topic: "Parameter Kinerja EV",
+                question: "Apa arti dari metrik efisiensi 'kWh per 100 kilometer' (kWh/100 km) pada kendaraan listrik?",
+                options: [
+                    "Jumlah energi listrik yang dikonsumsi kendaraan untuk menempuh jarak 100 kilometer",
+                    "Waktu yang dibutuhkan untuk mengisi baterai dari 0% ke 100% sejauh 100 km",
+                    "Kecepatan rata-rata mobil saat melaju di jalan tol",
+                    "Kapasitas total baterai dibagi jumlah roda kendaraan"
+                ],
+                correct: 0,
+                explanation: "kWh/100 km adalah ukuran konsumsi energi EV (analog dengan liter per 100 km pada mobil BBM). Semakin kecil angkanya, semakin efisien kendaraan tersebut."
+            },
+            {
+                topic: "Infrastruktur & Standar",
+                question: "Apa nama standar konektor pengisian cepat DC yang banyak digunakan oleh mobil listrik buatan pabrikan Jepang (seperti Nissan Leaf) dan beberapa kendaraan komersial?",
+                options: [
+                    "CCS Type 1",
+                    "Tesla Supercharger",
+                    "CHAdeMO",
+                    "Type 2 Mennekes"
+                ],
+                correct: 2,
+                explanation: "CHAdeMO adalah protokol pengisian cepat DC yang dikembangkan di Jepang dan banyak diadopsi pada generasi awal mobil listrik global."
+            },
+            {
+                topic: "Transmisi & Drivetrain",
+                question: "Mengapa sebagian besar kendaraan listrik murni (Battery Electric Vehicle) hanya menggunakan transmisi 1-percepatan (single-speed transmission) alih-alih transmisi manual multi-speed?",
+                options: [
+                    "Karena motor listrik memiliki rentang RPM operasional yang sangat luas (dari 0 hingga belasan ribu RPM) dengan kurva torsi instan",
+                    "Karena gigi transmisi multi-speed mudah rusak jika terkena arus listrik",
+                    "Karena pabrikan ingin menghemat biaya produksi semata tanpa alasan teknis",
+                    "Karena motor listrik tidak dapat berputar mundur"
+                ],
+                correct: 0,
+                explanation: "Motor listrik menghasilkan torsi maksimum secara instan pada RPM 0 dan efisien pada rentang putaran yang sangat luas, sehingga gigi persneling ganda tidak diperlukan untuk akselerasi."
+            },
+            {
+                topic: "Keamanan & Proteksi",
+                question: "Apa tujuan utama dari adanya komponen 'Service Disconnect' atau Manual Service Plug pada paket baterai EV?",
+                options: [
+                    "Untuk mencabut kabel aux audio saat mendengarkan musik",
+                    "Untuk memutus sirkuit internal paket baterai secara fisik guna menjamin keselamatan teknisi saat servis kelistrikan tegangan tinggi",
+                    "Untuk mengatur ulang jam digital di dashboard mobil",
+                    "Sebagai saklar darurat untuk menyalakan lampu hazard"
+                ],
+                correct: 1,
+                explanation: "Service disconnect memutuskan sambungan listrik tegangan tinggi antar modul baterai secara fisik, melindungi teknisi dari sengatan listrik mematikan saat perawatan."
+            },
+            {
+                topic: "Teknologi Masa Depan EV",
+                question: "Apa keunggulan utama yang dijanjikan oleh teknologi 'Solid-State Battery' dibandingkan baterai elektrolit cair konvensional?",
+                options: [
+                    "Menggunakan air biasa sebagai pengganti litium",
+                    "Kerapatan energi jauh lebih tinggi, waktu pengisian super cepat, dan tingkat keamanan tertinggi karena tidak mudah terbakar",
+                    "Harga produksi saat ini 10 kali lebih murah dari baterai timbal-asam",
+                    "Dapat diisi ulang hanya dengan tenaga surya tanpa kabel sama sekali"
+                ],
+                correct: 1,
+                explanation: "Baterai solid-state menggunakan elektrolit padat menggantikan cairan mudah terbakar, menawarkan keamanan total, kapasitas energi lebih besar, serta pengisian kilat."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswers = new Array(quizData.length).fill(null);
+        let isAnswered = new Array(quizData.length).fill(false);
+
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const currentQuestionNum = document.getElementById('current-question-num');
+        const topicTag = document.getElementById('topic-tag');
+        const currentScoreEl = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const nextBtnText = document.getElementById('next-btn-text');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationTitle = document.getElementById('explanation-title');
+        const explanationText = document.getElementById('explanation-text');
+
+        function startQuiz() {
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = quizData[currentQuestion];
+            currentQuestionNum.innerText = `Soal ${currentQuestion + 1} dari ${quizData.length}`;
+            topicTag.innerText = q.topic;
+            currentScoreEl.innerText = score;
+            
+            // Update progress bar
+            const progressPct = ((currentQuestion) / quizData.length) * 100;
+            progressBar.style.width = `${progressPct}%`;
+
+            questionText.innerText = q.question;
+            optionsContainer.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-2xl border transition-all duration-200 flex items-start space-x-3 text-sm sm:text-base font-medium group `;
+                
+                const isSelected = selectedAnswers[currentQuestion] === idx;
+                const answered = isAnswered[currentQuestion];
+
+                if (answered) {
+                    if (idx === q.correct) {
+                        btn.className += `bg-emerald-500/20 border-emerald-500 text-emerald-200 shadow-md shadow-emerald-500/10`;
+                    } else if (isSelected && idx !== q.correct) {
+                        btn.className += `bg-rose-500/20 border-rose-500 text-rose-200 shadow-md shadow-rose-500/10`;
+                    } else {
+                        btn.className += `bg-slate-900/40 border-slate-700/60 text-slate-400 opacity-60`;
+                    }
+                    btn.disabled = true;
+                } else {
+                    btn.className += `bg-slate-900/60 border-slate-700 hover:border-emerald-500/50 hover:bg-slate-900 text-slate-200`;
+                    btn.disabled = false;
+                }
+
+                btn.innerHTML = `
+                    <span class="flex-shrink-0 w-7 h-7 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-300 group-hover:border-emerald-500 group-hover:text-emerald-400">${letters[idx]}</span>
+                    <span class="flex-grow pt-0.5">${opt}</span>
+                `;
+
+                if (!answered) {
+                    btn.onclick = () => selectAnswer(idx);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            // Handle explanation box state
+            if (isAnswered[currentQuestion]) {
+                explanationBox.classList.remove('hidden');
+                const isCorrect = selectedAnswers[currentQuestion] === q.correct;
+                if (isCorrect) {
+                    explanationTitle.innerHTML = `<span class="text-emerald-400 flex items-center space-x-1"><svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Jawaban Anda Benar!</span>`;
+                    explanationBox.className = `mb-6 p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-sm`;
+                } else {
+                    explanationTitle.innerHTML = `<span class="text-rose-400 flex items-center space-x-1"><svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg> Jawaban Kurang Tepat</span>`;
+                    explanationBox.className = `mb-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-sm`;
+                }
+                explanationText.innerText = q.explanation;
+            } else {
+                explanationBox.classList.add('hidden');
+            }
+
+            // Navigation buttons state
+            prevBtn.disabled = currentQuestion === 0;
+            if (currentQuestion === quizData.length - 1) {
+                nextBtnText.innerText = "Lihat Hasil";
+            } else {
+                nextBtnText.innerText = "Selanjutnya";
+            }
+            
+            nextBtn.disabled = !isAnswered[currentQuestion];
+        }
+
+        function selectAnswer(idx) {
+            if (isAnswered[currentQuestion]) return;
+
+            isAnswered[currentQuestion] = true;
+            selectedAnswers[currentQuestion] = idx;
+
+            const q = quizData[currentQuestion];
+            if (idx === q.correct) {
+                score++;
+            }
+
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            const finalScoreEl = document.getElementById('final-score');
+            const finalPercentageEl = document.getElementById('final-percentage');
+            const resultBadgePred = document.getElementById('result-badge-pred');
+            const resultMessage = document.getElementById('result-message');
+
+            finalScoreEl.innerText = score;
+            const pct = Math.round((score / quizData.length) * 100);
+            finalPercentageEl.innerText = pct;
+
+            let predTitle = "Beginner EV Learner";
+            let desc = "Anda baru mengenal dasar-dasar kendaraan listrik. Terus tingkatkan eksplorasi seputar baterai dan motor EV!";
+
+            if (pct >= 90) {
+                predTitle = "EV Master / Expert";
+                desc = "Luar biasa! Anda memiliki penguasaan mendalam mengenai baterai, BMS, inverter, dan teknologi penggerak EV.";
+            } else if (pct >= 75) {
+                predTitle = "Advanced EV Engineer";
+                desc = "Pemahaman yang sangat baik! Anda memahami hampir seluruh aspek teknis dan arsitektur kendaraan listrik modern.";
+            } else if (pct >= 50) {
+                predTitle = "Intermediate EV Enthusiast";
+                desc = "Cukup baik! Anda sudah mengerti prinsip umum kendaraan listrik, namun perlu memperdalam bagian teknis seperti BMS dan kontroller.";
+            }
+
+            resultBadgePred.innerText = predTitle;
+            resultMessage.innerText = desc;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswers = new Array(quizData.length).fill(null);
+            isAnswered = new Array(quizData.length).fill(false);
+            
+            resultScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
