@@ -94,7 +94,7 @@
         </div>
 
         <!-- Pre-Test & Post-Test Banner -->
-        <div class="mb-10 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-indigo-500/10 border border-cyan-500/30 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+        <div class="mb-6 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-indigo-500/10 border border-cyan-500/30 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
             <div class="flex items-start sm:items-center space-x-4">
                 <div class="w-12 h-12 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-2xl shrink-0">
                     📝
@@ -115,6 +115,50 @@
                class="w-full sm:w-auto shrink-0 inline-flex items-center justify-center px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition-colors shadow-md shadow-cyan-500/20">
                 Buka Form Pre-Test / Post-Test &rarr;
             </a>
+        </div>
+
+        <!-- Download Software & Driver Votol -->
+        <div class="mb-10 bg-slate-800/80 border border-violet-500/30 rounded-2xl p-5 sm:p-6 shadow-lg">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+                <div class="flex items-start sm:items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-violet-500/15 border border-violet-400/30 flex items-center justify-center text-2xl shrink-0">
+                        💻
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-violet-400">Perangkat Lunak Praktik Controller</span>
+                        <h3 class="text-lg font-bold text-white mt-0.5">Download Votol Software &amp; Driver PL2303</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm mt-0.5">
+                            Paket arsip: <code class="font-mono text-violet-300 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-700">VotolApp+DriverPL2303.rar</code> — ekstrak terlebih dahulu sebelum menjalankan file installer di dalamnya.
+                        </p>
+                    </div>
+                </div>
+                <a href="VotolApp+DriverPL2303.rar"
+                   download="VotolApp+DriverPL2303.rar"
+                   class="w-full lg:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-violet-500 hover:bg-violet-400 text-slate-950 font-semibold text-sm transition-colors shadow-md shadow-violet-500/20">
+                    <span>⬇</span>
+                    <span>Download VotolApp+DriverPL2303.rar</span>
+                </a>
+            </div>
+
+            <!-- Penjelasan 2 File di Dalam Arsip -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-4 border-t border-slate-700/70 text-xs sm:text-sm">
+                <div class="bg-slate-900/70 border border-slate-700/70 rounded-xl p-3.5">
+                    <p class="font-mono font-semibold text-violet-300 mb-1">
+                        1. EM_V3-40 (EM-2 series products).exe
+                    </p>
+                    <p class="text-slate-400 leading-relaxed">
+                        Aplikasi utama di PC/laptop untuk melakukan konfigurasi, pengaturan parameter (seperti batas arus, kecepatan/RPM, <em class="text-slate-300">throttle</em>, dan <em class="text-slate-300">regenerative braking</em>), serta memantau status kerja <em class="text-slate-300">controller</em> Votol seri EM-2 secara langsung.
+                    </p>
+                </div>
+                <div class="bg-slate-900/70 border border-slate-700/70 rounded-xl p-3.5">
+                    <p class="font-mono font-semibold text-violet-300 mb-1">
+                        2. PL2303_Prolific_DriverInstaller_v110(2).exe
+                    </p>
+                    <p class="text-slate-400 leading-relaxed">
+                        Installer <em class="text-slate-300">driver</em> USB-to-Serial untuk chip Prolific PL2303. Instal file ini terlebih dahulu agar sistem operasi Windows dapat mengenali kabel koneksi/USB-TTL dan menyediakan port COM saat menghubungkan laptop ke <em class="text-slate-300">controller</em> Votol.
+                    </p>
+                </div>
+            </div>
         </div>
 
         <!-- Daftar Kartu Modul (Grid) - Berurutan dari Pengantar hingga Modul 06 -->
