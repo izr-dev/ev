@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>18 Pengenalan Komponen EV Roda Dua | Training EV</title>
+<script src="assets/tema.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#060A12;--panel:#0C1220;--line:#1B2740;--text:#E6ECF5;--dim:#8593AA;--u:#FFC857;--v:#3DDC97;--w:#4DA3FF;--alert:#FF6B8B;--disp:'Chakra Petch',system-ui,sans-serif;--body:'Sora',system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--text);font:400 16px/1.7 var(--body)}
+main{max-width:920px;margin:0 auto;padding:40px clamp(16px,4vw,32px) 0}
+h1{font:700 clamp(28px,4vw,44px)/1.1 var(--disp);margin:0 0 8px}
+h2{font:700 24px var(--disp);margin:52px 0 6px}
+a{color:var(--w)}
+.lead{color:var(--dim);margin:0 0 18px}
+.no{font:700 15px var(--disp);color:var(--v)}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin:12px 0}
+.goal{margin:0 0 8px;padding:14px 18px 14px 36px;border:1px solid var(--line);border-left:3px solid var(--v);border-radius:6px;background:var(--panel)}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 22px;margin:8px 0}
+.ctl label{display:block;font-size:13px;color:var(--dim)}
+.ctl b{color:var(--text);font-family:var(--disp)}
+.ctl input[type=range]{width:100%;accent-color:var(--v)}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.out div{padding:10px 12px;border:1px solid var(--line);border-radius:6px}
+.out span{display:block;font-size:12px;color:var(--dim)}
+.out strong{font:700 20px var(--disp)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--dim);font:500 13px var(--body);cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--v);color:var(--text);background:color-mix(in srgb,var(--v) 12%,transparent)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 16px;background:var(--ink);border:1px solid var(--line);border-radius:6px;color:var(--text);font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--v)}
+.opt.right{border-color:var(--v);background:color-mix(in srgb,var(--v) 14%,transparent)}
+.opt.wrong{border-color:var(--alert);background:color-mix(in srgb,var(--alert) 12%,transparent)}
+.why{font-size:14px;color:var(--dim);margin:8px 0 0}
+.verdict{padding:10px 14px;border-radius:6px;border:1px solid var(--line);margin-top:12px;font-size:14px}
+.ok{border-color:var(--v);color:var(--v)}.warn{border-color:var(--u);color:var(--u)}.bad{border-color:var(--alert);color:var(--alert)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+.cmp th,.cmp td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cmp th{color:var(--dim);font-weight:500}
+details.dl{margin-top:20px;border:1px solid var(--line);border-radius:8px;padding:4px 16px}
+details.dl summary{cursor:pointer;padding:12px 0;color:var(--w);font-weight:500}
+.q{margin:18px 0}.q h4{margin:0 0 8px;font:600 16px var(--body)}
+.nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:44px;padding-top:20px;border-top:1px solid var(--line)}
+.nav a,.nav button{padding:10px 18px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--text);font:600 14px var(--disp);text-decoration:none;cursor:pointer}
+.nav button{background:var(--v);border-color:var(--v);color:var(--ink)}
+.nav button[disabled]{background:var(--panel);color:var(--v)}
+.cp rect,.cp circle{fill:var(--panel);stroke:var(--u);stroke-width:1.8;transition:fill .15s,stroke .15s}
+.cp:hover circle,.cp:focus circle{stroke:var(--v)}
+.cp.sel circle{fill:color-mix(in srgb,var(--v) 30%,var(--panel));stroke:var(--v);stroke-width:2.6}
+.cp text{fill:var(--text);font:700 11px var(--body);text-anchor:middle;pointer-events:none}
+.cp{cursor:pointer;outline:none}
+.anat{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+@media(max-width:760px){.anat{grid-template-columns:1fr}}
+.info h3{font:700 20px var(--disp);margin:0 0 6px;color:var(--v)}
+.info p{margin:6px 0;font-size:14px}
+.info .k{color:var(--u);font:600 12px var(--disp)}
+.flow line,.flow path{stroke:var(--line);stroke-width:3;fill:none}
+.flow .on{stroke:var(--u);stroke-width:4;stroke-dasharray:8 7;animation:fl .9s linear infinite}
+.flow .on.g{stroke:var(--v)}.flow .on.s{stroke:var(--w);stroke-width:3}
+@keyframes fl{to{stroke-dashoffset:-30}}
+.flow .nd rect{fill:var(--panel);stroke:var(--dim);stroke-width:1.6}
+.flow .nd.on rect{fill:color-mix(in srgb,var(--v) 22%,var(--panel));stroke:var(--v);stroke-width:2.4}
+.flow text{fill:var(--text);font:600 11px var(--body);text-anchor:middle}
+@media(prefers-reduced-motion:reduce){.flow .on{animation:none}}
+abbr.tt{text-decoration:underline dotted var(--v);text-underline-offset:3px;cursor:help;position:relative}
+abbr.tt::after{content:attr(data-tip);position:absolute;left:0;bottom:calc(100% + 6px);width:max-content;max-width:260px;padding:8px 10px;background:var(--panel);color:var(--text);border:1px solid var(--v);border-radius:6px;font:400 12px/1.5 var(--body);opacity:0;pointer-events:none;transform:translateY(4px);transition:opacity .15s,transform .15s;z-index:30;white-space:normal}
+abbr.tt:hover::after,abbr.tt:focus::after{opacity:1;transform:none}
+.lg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin:6px 0}
+.lg b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
+</style>
+</head>
+<body data-kode="18">
+<div id="site-header"></div>
+<main>
+  <div class="no">Modul 18 &nbsp;|&nbsp; Pengenalan</div>
+  <h1>Komponen EV Roda Dua</h1>
+  <p class="lead">Motor listrik tidak punya busi, tangki, atau knalpot. Sebagai gantinya ada <abbr class="tt" tabindex="0" data-tip="Kumpulan sel baterai yang disusun seri dan paralel, biasanya lithium-ion, ditambah pelindung BMS.">baterai pack</abbr>, <abbr class="tt" tabindex="0" data-tip="Controller: unit elektronik yang mengatur arus dari baterai ke motor (modul 17).">controller</abbr>, dan <abbr class="tt" tabindex="0" data-tip="Motor BLDC: motor tanpa sikat. Pergantian arus dilakukan secara elektronik (modul 16).">motor BLDC</abbr>. Modul ini memperkenalkan semua komponen utama, letaknya, dan hubungannya. Arahkan kursor atau ketuk istilah bergaris titik untuk melihat artinya.</p>
+  <ul class="goal">
+    <li>Menyebutkan komponen utama EV roda dua beserta fungsi dan letak umumnya.</li>
+    <li>Menjelaskan jalur daya tegangan tinggi, jalur 12 V, dan jalur sinyal.</li>
+    <li>Menghitung tegangan dan energi pack dari susunan sel seri dan paralel.</li>
+  </ul>
+
+  <div class="box" id="hook">
+    <b>Tebak dulu.</b> Tiga komponen mana yang membentuk &quot;jantung&quot; penggerak motor listrik?
+    <div id="hopt"></div><p class="why" id="hans" hidden></p>
+  </div>
+
+  <h2>1. Peta komponen</h2>
+  <p class="lead">Ketuk nomor pada gambar atau tombol di bawahnya. Gambar ini skema umum, dan letak komponen berbeda pada tiap model.</p>
+  <div class="box">
+    <div class="anat">
+      <svg id="mp" viewBox="0 0 460 230" style="width:100%;height:auto;background:var(--ink);border:1px solid var(--line);border-radius:6px" role="img" aria-label="Skema sepeda motor listrik dengan nomor komponen">
+        <g fill="none" stroke="var(--dim)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="90" cy="160" r="38"/><circle cx="370" cy="160" r="38"/>
+          <path d="M90 160 L130 62 M118 56 L150 50 M130 62 L160 125 M160 125 L160 160 M300 100 L370 160 M160 160 L300 160"/>
+          <rect x="150" y="118" width="140" height="42" rx="6" stroke-width="2"/>
+          <rect x="205" y="80" width="115" height="14" rx="6" stroke-width="2"/>
+        </g>
+        <g id="hs"></g>
+      </svg>
+      <div class="info" id="inf"></div>
+    </div>
+    <div class="chips" id="chp"></div>
+  </div>
+
+  <h2>2. Jalur daya dan sinyal</h2>
+  <p class="lead">Ada tiga jenis jalur: daya tegangan tinggi dari pack (kuning), 12 V untuk lampu dan display (hijau), dan sinyal kecil dari gas dan rem (biru). Nyalakan kunci, tarik gas, atau tekan rem, lalu lihat jalur yang aktif.</p>
+  <div class="box">
+    <div class="chips" id="sw">
+      <button class="chip" data-k="key" aria-pressed="false">Kunci: mati</button>
+      <button class="chip" data-k="gas" aria-pressed="false">Gas: lepas</button>
+      <button class="chip" data-k="brk" aria-pressed="false">Rem: lepas</button>
+      <button class="chip" data-k="chg" aria-pressed="false">Charger: tidak tersambung</button>
+    </div>
+    <svg class="flow" id="fl" viewBox="0 0 460 230" style="width:100%;height:auto;background:var(--ink);border:1px solid var(--line);border-radius:6px" role="img" aria-label="Diagram jalur daya dan sinyal EV"></svg>
+    <div class="lg"><span><b style="background:var(--u)"></b>Daya tegangan tinggi</span><span><b style="background:var(--v)"></b>12 V</span><span><b style="background:var(--w)"></b>Sinyal</span></div>
+    <div class="verdict" id="fv"></div>
+    <p class="why">Ini skema sederhana. Sebagian motor memakai kontaktor atau relay utama, ada pula yang memakai aki 12 V terpisah. Urutan penyalaan dan kabel lengkap dibahas di modul 20.</p>
+  </div>
+
+  <h2>3. Baterai: seri dan paralel</h2>
+  <div class="box">
+    <div class="ctl">
+      <label>Sel seri (S): <b id="sT"></b><input type="range" id="s" min="13" max="24" step="1" value="20"></label>
+      <label>Sel paralel (P): <b id="pT"></b><input type="range" id="p" min="1" max="10" step="1" value="4"></label>
+      <label>Kapasitas tiap sel: <b id="aT"></b><input type="range" id="a" min="2" max="5" step=".5" value="3"></label>
+    </div>
+    <div class="out"><div><span>Tegangan nominal</span><strong id="o1"></strong></div><div><span>Tegangan penuh</span><strong id="o2"></strong></div><div><span>Tegangan kosong</span><strong id="o3"></strong></div><div><span>Kapasitas pack</span><strong id="o4"></strong></div><div><span>Energi pack</span><strong id="o5"></strong></div><div><span>Jumlah sel</span><strong id="o6"></strong></div></div>
+    <div class="verdict" id="ov"></div>
+    <p class="why">Sel seri menambah <b>tegangan</b>, sel paralel menambah <b>kapasitas (Ah)</b>. Contoh memakai sel lithium-ion 3,6 V nominal, 4,2 V penuh, dan sekitar 3,0 V kosong. Angka nyata bergantung jenis sel, misalnya LFP memakai tegangan berbeda. Contoh ini mengabaikan rugi dan kemampuan arus sel.</p>
+  </div>
+
+  <h2>4. Dari motor bensin ke motor listrik</h2>
+  <table class="cmp">
+    <tr><th>Motor bensin</th><th>Motor listrik</th><th>Catatan</th></tr>
+    <tr><td>Tangki bensin</td><td><b>Baterai pack</b></td><td>Menyimpan energi. Isi ulang lewat charger.</td></tr>
+    <tr><td>Mesin</td><td><b>Motor BLDC</b> (hub atau mid-drive)</td><td>Hub motor langsung menggerakkan roda, tanpa CVT.</td></tr>
+    <tr><td>Karburator, injeksi, ECU</td><td><b>Controller</b></td><td>Mengatur daya ke motor dari gas dan sensor.</td></tr>
+    <tr><td>Handle gas dan kabel gas</td><td><b>Throttle elektronik</b> (sensor Hall)</td><td>Mengirim sinyal tegangan kecil, bukan tarikan kabel.</td></tr>
+    <tr><td>Aki 12 V dan kiprok</td><td><b>DC-DC converter</b></td><td>Menurunkan tegangan pack menjadi 12 V untuk lampu dan display.</td></tr>
+    <tr><td>Sekring dan kunci kontak</td><td><b>Sekring/MCB, kontaktor, kunci</b></td><td>Pengaman dan pemutus jalur daya.</td></tr>
+    <tr><td>Knalpot dan tangki: tidak ada</td><td><b>BMS</b></td><td>Menjaga tiap sel dari kelebihan atau kekurangan tegangan, arus, dan suhu.</td></tr>
+  </table>
+
+  <h2>5. Tegangan dan keselamatan</h2>
+  <table class="cmp">
+    <tr><th>Jalur</th><th>Tegangan umum</th><th>Perhatian</th></tr>
+    <tr><td><b>Pack ke controller dan motor</b></td><td>Sekitar 48 sampai 96 V, arus besar</td><td>Hubung singkat memicu percikan, panas, dan api. Lepas konektor servis dan tunggu kapasitor controller kosong sebelum membuka (modul 04).</td></tr>
+    <tr><td><b>Lampu, klakson, display</b></td><td>12 V</td><td>Lebih aman, tetapi kabel tetap bisa panas bila konslet. Pakai sekring.</td></tr>
+    <tr><td><b>Sensor (Hall, gas)</b></td><td>Sekitar 5 V, arus kecil</td><td>Mudah rusak oleh salah sambung. Ukur sebelum menyambungkan (modul 04 dan 20).</td></tr>
+  </table>
+
+  <details class="dl"><summary>Catatan untuk pengajar</summary>
+    <p><b>Alur sekitar 60 menit:</b> tebakan (5), peta komponen (15), jalur daya (15), seri paralel (10), perbandingan dengan motor bensin (5), kuis (10).</p>
+    <p><b>Peragaan:</b> bawa satu motor listrik yang penutupnya dibuka, atau komponen bekas (controller, throttle, DC-DC). Minta peserta menunjuk letak tiap komponen sebelum membuka penjelasan.</p>
+    <p><b>Pesan utama:</b> EV roda dua pada dasarnya baterai, controller, dan motor, ditambah pengaman dan komponen 12 V. Tegangan tinggi pada pack selalu diperlakukan berbahaya.</p>
+  </details>
+
+  <h2>6. Kuis</h2>
+  <div id="quiz"></div><div class="verdict" id="score" hidden></div>
+
+  <div class="nav">
+    <a href="modul-17.html">Sebelumnya: 17</a><a href="index.html#modul">Daftar modul</a>
+    <button id="doneBtn">Tandai selesai</button><a href="modul-19.html">Berikutnya: 19</a>
+  </div>
+</main>
+<div id="site-footer"></div>
+<script>
+const $=id=>document.getElementById(id);
+fetch('assets/layout.html').then(r=>{if(!r.ok)throw 0;return r.text()}).then(h=>{
+  const d=new DOMParser().parseFromString(h,'text/html');
+  document.head.append(...d.querySelectorAll('style'));
+  $('site-header').replaceWith(d.querySelector('header'));$('site-footer').replaceWith(d.querySelector('footer'));
+}).catch(()=>{$('site-header').textContent='Training EV'});
+const kode=document.body.dataset.kode, btn=$('doneBtn');
+let done=[]; try{done=JSON.parse(localStorage.getItem('evDone')||'[]')}catch(e){}
+const mark=()=>{btn.textContent='Selesai ✓';btn.disabled=true};
+if(done.includes(kode))mark();
+btn.onclick=()=>{if(!done.includes(kode))done.push(kode);try{localStorage.setItem('evDone',JSON.stringify(done))}catch(e){}mark()};
+const fx=(n,d=1)=>(+n).toLocaleString('id-ID',{maximumFractionDigits:d});
+function hook(id,aid,opts,ok,html){$(id).innerHTML=opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('');$(id).onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;[...$(id).children].forEach((x,i)=>{x.disabled=true;if(i===ok)x.classList.add('right')});if(+b.dataset.i!==ok)b.classList.add('wrong');const a=$(aid);a.hidden=false;a.innerHTML=html}}
+hook('hopt','hans',['Busi, karburator, dan knalpot','Baterai, controller, dan motor','Aki, kiprok, dan CDI','Lampu, klakson, dan spion'],1,'Jawabannya <b>baterai, controller, dan motor</b>. Baterai menyimpan energi, controller mengaturnya, dan motor mengubahnya menjadi putaran roda. Komponen lain mendukung dan mengamankan ketiganya.');
+
+// ----- peta komponen -----
+const C=[
+['Baterai pack','Daya',185,140,'Di bawah jok atau di lantai (floor)','Menyimpan energi listrik. Tersusun dari sel lithium yang disusun seri dan paralel.','Sekitar 48 sampai 96 V nominal. Arus bisa puluhan sampai ratusan ampere.','Jarak tempuh menurun, tegangan turun drastis saat digas, atau pack menggembung. Hentikan pemakaian dan periksa.','Bahaya hubung singkat. Lihat modul 04.'],
+['BMS','Pengaman',255,140,'Di dalam atau menempel pada pack','Battery Management System: memantau tegangan tiap sel, arus, dan suhu. Memutus jalur bila ada kondisi berbahaya dan menyeimbangkan sel.','Tegangan sama dengan pack, sinyal sensor kecil.','Pack mati mendadak, tidak bisa diisi, atau satu kelompok sel tegangannya jauh berbeda.','Jangan dilewati (bypass).'],
+['Motor BLDC','Penggerak',370,160,'Di dalam roda belakang (hub) atau di rangka (mid-drive)','Mengubah listrik menjadi putaran. Tiga kabel fasa tebal dan lima kabel sensor Hall (modul 16).','Daya beberapa ratus watt sampai beberapa kilowatt.','Tersendat, berisik, panas, atau bau gosong.','Modul 16 dan 22.'],
+['Controller','Kontrol',260,108,'Di bawah jok atau dekat pack, sering di dalam bodi','Mengatur arus ke motor berdasarkan gas, rem, dan sensor Hall. Berisi enam MOSFET dan proteksi (modul 17).','Tegangan sesuai pack. Arus fasa sampai ratusan ampere.','Tidak ada tenaga, kode gangguan, panas berlebih, atau MOSFET jebol.','Modul 17 dan 20.'],
+['Throttle (gas)','Kontrol',152,44,'Di setang kanan','Sensor posisi yang mengirim sinyal tegangan kecil ke controller sesuai putaran gagang.','Suplai sekitar 5 V, sinyal sekitar 1 sampai 4 V (contoh umum).','Tarikan tidak halus, tenaga naik sendiri, atau motor tidak mau jalan.','Ukur dengan multimeter. Modul 04 dan 20.'],
+['Rem dan sensor rem','Pengaman',116,50,'Pada tuas rem kiri dan kanan','Sakelar pada tuas rem memutus perintah gas saat rem ditarik (cut-off). Pada sistem regen, sinyal ini juga memicu pengisian.','Sinyal kecil (beberapa volt).','Motor tidak mau jalan bila sakelar macet, atau tetap jalan saat rem ditarik bila sakelar rusak.','Modul 17 (proteksi).'],
+['Kunci kontak','Kontrol',140,76,'Di bawah setang','Menyalakan sistem: memberi daya ke DC-DC dan controller. Pada banyak motor, kunci juga memberi sinyal kunci ke controller.','Arus kecil. Ada yang melewati relay.','Motor tidak menyala sama sekali atau mati sendiri saat guncangan.','Modul 20.'],
+['Sekring / MCB / kontaktor','Pengaman',172,108,'Dekat pack, di jalur positif','Pemutus daya saat arus berlebih atau konslet. Kontaktor adalah relay besar yang memutus daya utama dari kunci.','Sesuai arus maksimum sistem.','MCB sering turun, kontaktor tidak berbunyi klik, atau konektor panas.','Modul 04.'],
+['DC-DC converter','Daya',312,120,'Dekat controller atau pack','Menurunkan tegangan pack menjadi 12 V untuk lampu, klakson, display, dan relay. Menggantikan aki dan kiprok motor bensin.','Keluaran 12 V, arus beberapa ampere.','Lampu redup atau mati, display mati, tetapi motor tetap bisa jalan.','Ukur keluarannya dengan multimeter.'],
+['Charger dan port','Daya',336,84,'Charger di luar, port di bodi atau di bawah jok','Mengisi pack dari listrik rumah. Charger harus sesuai tegangan dan jenis pack. BMS ikut mengawasi.','Keluaran sesuai pack penuh, misalnya sekitar 84 V untuk pack 72 V nominal (contoh).','Pengisian tidak naik, charger panas, atau port gosong.','Jangan memakai charger yang tidak cocok.'],
+['Display / speedometer','Aksesori',186,44,'Di setang','Menampilkan kecepatan, tegangan atau persen baterai, dan kode gangguan.','Biasanya 12 V, atau tegangan lain sesuai model.','Layar mati atau angka tidak wajar.','Cek jalur 12 V dan kabel sinyal.'],
+['Lampu dan klakson','Aksesori',100,96,'Depan, belakang, dan setang','Beban 12 V: lampu, sein, dan klakson. Ditenagai DC-DC.','12 V.','Redup atau mati saat DC-DC lemah, atau sekring putus.','Pakai sekring 12 V.']
+];
+$('hs').innerHTML=C.map((c,i)=>`<g class="cp" data-i="${i}" tabindex="0" role="button" aria-label="${c[0]}"><circle cx="${c[2]}" cy="${c[3]}" r="10"/><text x="${c[2]}" y="${c[3]+4}">${i+1}</text></g>`).join('');
+$('chp').innerHTML=C.map((c,i)=>`<button class="chip" data-i="${i}" aria-pressed="false">${i+1}. ${c[0]}</button>`).join('');
+function sel(i){
+  document.querySelectorAll('.cp').forEach((g,j)=>g.classList.toggle('sel',i===j));
+  [...$('chp').children].forEach((b,j)=>b.setAttribute('aria-pressed',i===j));
+  const c=C[i];
+  $('inf').innerHTML=`<h3>${i+1}. ${c[0]}</h3><p class="k">${c[1].toUpperCase()}</p><p><b>Letak umum:</b> ${c[4]}</p><p><b>Fungsi:</b> ${c[5]}</p><p><b>Nilai umum:</b> ${c[6]}</p><p><b>Tanda masalah:</b> ${c[7]}</p><p><b>Catatan:</b> ${c[8]}</p>`;
+}
+$('hs').onclick=e=>{const g=e.target.closest('.cp');if(g)sel(+g.dataset.i)};
+$('hs').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('.cp');if(g){e.preventDefault();sel(+g.dataset.i)}}};
+$('chp').onclick=e=>{const b=e.target.closest('button');if(b)sel(+b.dataset.i)};
+sel(0);
+
+// ----- jalur daya -----
+const S={key:0,gas:0,brk:0,chg:0};
+const LBL={key:['Kunci: mati','Kunci: hidup'],gas:['Gas: lepas','Gas: ditarik'],brk:['Rem: lepas','Rem: ditarik'],chg:['Charger: tidak tersambung','Charger: tersambung']};
+function flow(){
+  const k=S.key&&!S.chg,drive=k&&S.gas&&!S.brk;
+  const nd=(x,y,t,on)=>`<g class="nd${on?' on':''}"><rect x="${x}" y="${y}" width="84" height="34" rx="4"/><text x="${x+42}" y="${y+21}">${t}</text></g>`;
+  const ln=(d,on,c)=>`<path d="${d}" ${on?`class="on ${c||''}"`:''}/>`;
+  $('fl').innerHTML=
+    ln('M62 48 V98',S.chg)+ln('M104 115 H120',k||S.chg)+ln('M204 115 H220',k)+ln('M304 115 H340',drive)+ln('M162 132 V197 H220',k)+ln('M304 197 H340',k,'g')+
+    ln('M230 48 V80 H250 V98',k&&S.gas,'s')+ln('M332 48 V80 H274 V98',k&&S.brk,'s')+
+    nd(20,14,'Charger',S.chg)+nd(188,14,'Gas',k&&S.gas)+nd(290,14,'Rem',k&&S.brk)+nd(20,98,'Baterai + BMS',k||S.chg)+nd(120,98,'Sekring',k||S.chg)+nd(220,98,'Controller',k)+nd(340,98,'Motor',drive)+nd(220,180,'DC-DC 12 V',k)+nd(340,180,'Lampu, display',k);
+  const v=$('fv');
+  if(S.chg){v.className='verdict warn';v.textContent='Charger tersambung: pack terisi dan sistem berkendara dinonaktifkan. Banyak motor memang mengunci penggerak saat mengisi. Jangan berkendara dengan charger tersambung.'}
+  else if(!S.key){v.className='verdict ok';v.textContent='Kunci mati: daya mengalir hanya sampai batas pengaman, sehingga controller dan 12 V tidak aktif. Sebagian komponen tetap tersambung ke pack, jadi tetap bahaya saat dibongkar.'}
+  else if(drive){v.className='verdict ok';v.textContent='Kunci hidup, gas ditarik, rem lepas: controller mengalirkan daya ke motor dan roda berputar. DC-DC menyuplai lampu dan display.'}
+  else if(S.gas&&S.brk){v.className='verdict warn';v.textContent='Rem ditarik saat gas ditarik: sinyal rem memutus perintah gas (cut-off), sehingga motor tidak digerakkan.'}
+  else{v.className='verdict ok';v.textContent='Kunci hidup, gas lepas: controller dan 12 V aktif, tetapi motor tidak digerakkan karena tidak ada perintah gas.'}
+}
+$('sw').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k;S[k]=S[k]?0:1;b.setAttribute('aria-pressed',!!S[k]);b.textContent=LBL[k][S[k]];flow()};flow();
+
+// ----- baterai -----
+function bat(){
+  const s=+$('s').value,p=+$('p').value,a=+$('a').value;
+  $('sT').textContent=s+'S';$('pT').textContent=p+'P';$('aT').textContent=fx(a,1)+' Ah';
+  const vn=3.6*s,vf=4.2*s,ve=3*s,ah=a*p,wh=vn*ah;
+  $('o1').textContent=fx(vn,1)+' V';$('o2').textContent=fx(vf,1)+' V';$('o3').textContent=fx(ve,1)+' V';$('o4').textContent=fx(ah,1)+' Ah';$('o5').textContent=fx(wh/1000,2)+' kWh';$('o6').textContent=s*p;
+  const v=$('ov');
+  if(vf>=84){v.className='verdict bad';v.textContent=`Pack penuh ${fx(vf,0)} V dengan kapasitas ${fx(ah,0)} Ah: tegangan dan arus tinggi. Pakai alat pelindung, perkakas berisolasi, dan ikuti urutan keselamatan (modul 04).`}
+  else{v.className='verdict warn';v.textContent=`Pack penuh ${fx(vf,0)} V: tetap perlakukan sebagai berbahaya karena arusnya besar. Pastikan controller dan charger cocok dengan ${s}S (modul 17).`}
+}
+['s','p','a'].forEach(i=>$(i).addEventListener('input',bat));bat();
+
+// ----- kuis -----
+const Q=[
+['Komponen yang menyimpan energi pada EV adalah...',['Controller','Baterai pack','Throttle'],1,'Baterai menyimpan energi. Controller hanya mengaturnya.'],
+['Komponen yang mengatur arus ke motor berdasarkan gas dan sensor Hall adalah...',['DC-DC converter','BMS','Controller'],2,'Controller memotong arus dengan PWM dan memilih kumparan (modul 17).'],
+['Tugas BMS adalah...',['Menaikkan tegangan pack','Memantau dan melindungi sel baterai','Mengubah arus menjadi putaran'],1,'BMS menjaga tegangan, arus, dan suhu sel serta menyeimbangkan sel.'],
+['Fungsi DC-DC converter pada EV adalah...',['Menurunkan tegangan pack menjadi 12 V untuk lampu dan display','Mengisi baterai dari listrik rumah','Menggerakkan roda'],0,'DC-DC menggantikan aki dan kiprok motor bensin.'],
+['Pack 20S dengan sel 3,6 V nominal memiliki tegangan nominal sekitar...',['36 V','72 V','120 V'],1,'20 × 3,6 V = 72 V.'],
+['Sel paralel dalam pack menambah...',['Tegangan','Kapasitas (Ah)','Jumlah kabel fasa'],1,'Seri menambah tegangan, paralel menambah kapasitas.'],
+['Rem ditarik saat gas ditarik, sinyal rem akan...',['Menaikkan tenaga','Memutus perintah gas (cut-off)','Menyalakan lampu saja'],1,'Cut-off rem membuat motor tidak digerakkan saat rem ditarik.'],
+['Bagian mana yang paling berbahaya jika dibongkar tanpa melepas daya?',['Jalur pack ke controller dan motor','Lampu 12 V','Kabel spion'],0,'Tegangan tinggi dan arus besar: hubung singkat memicu percikan dan api (modul 04).']
+];
+let sc=0,ans=0;
+$('quiz').innerHTML=Q.map((q,i)=>`<div class="q" data-i="${i}"><h4>${i+1}. ${q[0]}</h4>${q[1].map((o,j)=>`<button class="opt" data-j="${j}">${o}</button>`).join('')}<p class="why" hidden></p></div>`).join('');
+$('quiz').onclick=e=>{
+  const b=e.target.closest('button');if(!b||b.disabled)return;
+  const box=b.closest('.q'),q=Q[+box.dataset.i],ok=+b.dataset.j===q[2];
+  box.querySelectorAll('button').forEach((x,j)=>{x.disabled=true;if(j===q[2])x.classList.add('right')});
+  if(!ok)b.classList.add('wrong');else sc++;
+  const w=box.querySelector('.why');w.hidden=false;w.textContent=(ok?'Benar. ':'Belum tepat. ')+q[3];
+  if(++ans===Q.length){const s=$('score');s.hidden=false;s.className='verdict '+(sc>=7?'ok':sc>=5?'warn':'bad');s.textContent=`Skor Anda ${sc} dari ${Q.length}. `+(sc>=7?'Siap lanjut ke modul berikutnya.':'Ulangi peta komponen dan jalur daya, lalu coba kuis lagi.')}
+};
+</script>
+</body>
+</html>
