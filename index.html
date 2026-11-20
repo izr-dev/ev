@@ -37,7 +37,7 @@
     <main class="max-w-5xl mx-auto px-6 py-12 flex-grow w-full">
         
         <!-- Hero Section & QR Code Banner -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center mb-8 bg-slate-800/50 border border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-xl">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center mb-6 bg-slate-800/50 border border-slate-700/60 rounded-3xl p-6 sm:p-8 shadow-xl">
             <!-- Teks Pengantar -->
             <div class="lg:col-span-2 text-center lg:text-left">
                 <span class="inline-block bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-semibold px-3 py-1 rounded-full mb-4">
@@ -60,6 +60,29 @@
                 <p class="text-xs font-semibold text-slate-300">Scan untuk Buka di HP</p>
                 <p class="text-[10px] text-slate-500 mt-0.5">Akses cepat materi pelatihan</p>
             </div>
+        </div>
+
+        <!-- Informasi Wi-Fi Pelatihan -->
+        <div class="mb-6 bg-slate-800/70 border border-emerald-500/30 rounded-2xl p-5 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+            <div class="flex items-start sm:items-center space-x-4">
+                <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-xl shrink-0">
+                    📶
+                </div>
+                <div>
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Koneksi Jaringan Pelatihan</span>
+                    <h3 class="text-base font-bold text-white mt-0.5">Informasi Wi-Fi</h3>
+                    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs sm:text-sm text-slate-300 mt-1">
+                        <span>SSID: <strong class="font-mono text-emerald-300 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700">ISC</strong></span>
+                        <span>Password: <strong id="wifiPass" class="font-mono text-emerald-300 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700">mayaksa02</strong></span>
+                    </div>
+                </div>
+            </div>
+            <button type="button"
+                    onclick="copyWifiPassword()"
+                    id="copyWifiBtn"
+                    class="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-medium text-xs sm:text-sm transition-colors">
+                <span>Salin Password</span>
+            </button>
         </div>
 
         <!-- Pre-Test & Post-Test Banner -->
@@ -229,6 +252,29 @@
     <footer class="border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
         <p>&copy; 2026 Pembelajaran Elektronika & Kendaraan Listrik. Powered by GitHub Pages.</p>
     </footer>
+
+    <script>
+        function copyWifiPassword() {
+            const pass = document.getElementById('wifiPass').textContent.trim();
+            const btn = document.getElementById('copyWifiBtn');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(pass).then(() => {
+                    btn.textContent = 'Tersalin!';
+                    setTimeout(() => { btn.textContent = 'Salin Password'; }, 2000);
+                });
+            } else {
+                const tempInput = document.createElement('input');
+                tempInput.value = pass;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                btn.textContent = 'Tersalin!';
+                setTimeout(() => { btn.textContent = 'Salin Password'; }, 2000);
+            }
+        }
+    </script>
 
 </body>
 </html>
