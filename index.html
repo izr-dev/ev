@@ -16,7 +16,7 @@
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
 
     <!-- Header / Navbar -->
-    <header class="bg-slate-800/50 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50">
+    <header class="bg-slate-800/50 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-40">
         <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/30">
@@ -46,9 +46,17 @@
                 <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
                     Pilih Modul Pembelajaran
                 </h2>
-                <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                <p class="text-slate-400 text-sm sm:text-base leading-relaxed mb-5">
                     Silakan pilih salah satu modul interaktif di bawah ini, atau scan QR code di samping untuk langsung membagikan halaman utama ini ke perangkat peserta.
                 </p>
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                    <button type="button"
+                            onclick="openRundownModal()"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold text-xs sm:text-sm transition-colors cursor-pointer">
+                        <span>📅</span>
+                        <span>Lihat Rundown Kegiatan (PDF)</span>
+                    </button>
+                </div>
             </div>
 
             <!-- QR Code Card -->
@@ -80,33 +88,9 @@
             <button type="button"
                     onclick="copyWifiPassword()"
                     id="copyWifiBtn"
-                    class="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-medium text-xs sm:text-sm transition-colors">
+                    class="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-medium text-xs sm:text-sm transition-colors cursor-pointer">
                 <span>Salin Password</span>
             </button>
-        </div>
-
-        <!-- Rundown Kegiatan PDF Banner -->
-        <div class="mb-6 bg-slate-800/70 border border-amber-500/30 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
-            <div class="flex items-start sm:items-center space-x-4">
-                <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-2xl shrink-0">
-                    📅
-                </div>
-                <div>
-                    <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Jadwal & Agenda</span>
-                    <h3 class="text-lg font-bold text-white mt-0.5">Rundown Kegiatan Pelatihan</h3>
-                    <p class="text-slate-400 text-xs sm:text-sm">
-                        Lihat susunan acara, sesi materi, dan jadwal praktik dalam format PDF.
-                        <!-- Ganti "rundown-kegiatan.pdf" sesuai nama file PDF Anda -->
-                    </p>
-                </div>
-            </div>
-            <a href="rundown-kegiatan.pdf"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold text-sm transition-colors">
-                <span>Buka PDF Rundown</span>
-                <span aria-hidden="true">&rarr;</span>
-            </a>
         </div>
 
         <!-- Pre-Test & Post-Test Banner -->
@@ -272,12 +256,94 @@
         </div>
     </main>
 
+    <!-- Popup Modal Rundown PDF -->
+    <div id="rundownModal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="rundownModalTitle"
+         onclick="handleBackdropClick(event)"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-4xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700/80 bg-slate-900/60">
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">📅</span>
+                    <div>
+                        <h3 id="rundownModalTitle" class="text-base sm:text-lg font-bold text-white">Rundown Kegiatan</h3>
+                        <p class="text-xs text-slate-400">Dokumen PDF jadwal & susunan acara pelatihan</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a id="rundownDirectLink"
+                       href="rundown.pdf"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-xs font-medium text-slate-200 transition-colors">
+                        Buka Tab Baru ↗
+                    </a>
+                    <button type="button"
+                            onclick="closeRundownModal()"
+                            aria-label="Tutup modal rundown"
+                            class="w-9 h-9 rounded-lg bg-slate-700/60 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-slate-600/50 hover:border-rose-500/40 flex items-center justify-center text-xl font-bold leading-none transition-colors cursor-pointer">
+                        &times;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body (PDF Viewer) -->
+            <div class="flex-grow bg-slate-900 relative">
+                <iframe id="rundownFrame"
+                        src=""
+                        title="PDF Rundown Kegiatan"
+                        class="w-full h-full border-0"></iframe>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
         <p>&copy; 2026 Pembelajaran Elektronika & Kendaraan Listrik. Powered by GitHub Pages.</p>
     </footer>
 
     <script>
+        // Ganti nama file PDF di bawah ini sesuai file rundown kegiatan Anda
+        const RUNDOWN_PDF_URL = 'rundown.pdf';
+
+        function openRundownModal() {
+            const modal = document.getElementById('rundownModal');
+            const frame = document.getElementById('rundownFrame');
+            const directLink = document.getElementById('rundownDirectLink');
+
+            directLink.href = RUNDOWN_PDF_URL;
+            frame.src = RUNDOWN_PDF_URL;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeRundownModal() {
+            const modal = document.getElementById('rundownModal');
+            const frame = document.getElementById('rundownFrame');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            frame.src = '';
+        }
+
+        function handleBackdropClick(event) {
+            if (event.target.id === 'rundownModal') {
+                closeRundownModal();
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeRundownModal();
+            }
+        });
+
         function copyWifiPassword() {
             const pass = document.getElementById('wifiPass').textContent.trim();
             const btn = document.getElementById('copyWifiBtn');
