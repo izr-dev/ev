@@ -1150,16 +1150,14 @@ function classifyCharging(v) {
   return {label:'Transisi / Tidak Diketahui', state:'neutral'}; // zona abu-abu: 600-700, 1200-1400, 2200-2500
 }
 function classifyBattery(battPlus, battMinus) {
-  //if (battMinus > 300) return {label:'Battery Error', state:'alert'};
-  //if (battPlus > 1000 && battMinus > 200 && battMinus < 330) return {label:'48V', state:'live'};
-  //if (battPlus >= 700 && battPlus <= 1000 && battMinus > 200 && battMinus <= 300) return {label:'60V', state:'live'};
-  //if (battPlus >= 400 && battPlus <= 1000 && battMinus <= 200) return {label:'60V + Precharge', state:'live'};
-  //if (battPlus >= 550 && battPlus < 700 && battMinus > 200 && battMinus <= 300) return {label:'72V', state:'live'};
-  //if (battPlus >= 250 && battPlus < 400 && battMinus <= 200) return {label:'72V + Precharge', state:'live'};
-  //if (battPlus >= 150 && battPlus < 550 && battMinus > 200 && battMinus <= 300) return {label:'96V (Tegangan tinggi wajib pakai Precharge)', state:'live'};
-  if (battPlus > 0 && battMinus > 0) return {label:'96V + Precharge', state:'live'};
-
-  //if (battPlus >= 150 && battPlus < 250 && battMinus <= 200) return {label:'96V + Precharge', state:'live'};
+  if (battMinus > 300) return {label:'Battery Error', state:'alert'};
+  if (battPlus > 1000 && battMinus > 200 && battMinus < 330) return {label:'48V', state:'live'};
+  if (battPlus >= 700 && battPlus <= 1000 && battMinus > 200 && battMinus <= 300) return {label:'60V', state:'live'};
+  if (battPlus >= 400 && battPlus <= 1000 && battMinus <= 200) return {label:'60V + Precharge', state:'live'};
+  if (battPlus >= 550 && battPlus < 700 && battMinus > 200 && battMinus <= 300) return {label:'72V', state:'live'};
+  if (battPlus >= 250 && battPlus < 400 && battMinus <= 200) return {label:'72V + Precharge', state:'live'};
+  if (battPlus >= 150 && battPlus < 550 && battMinus > 200 && battMinus <= 300) return {label:'96V (Tegangan tinggi wajib pakai Precharge)', state:'live'};
+  if (battPlus >= 150 && battPlus < 250 && battMinus <= 200) return {label:'96V + Precharge', state:'live'};
   return {label:'BATERAI OFF', state:'neutral'};
 }
 function classifySpeedMode(spd) {
@@ -1170,11 +1168,9 @@ function classifySpeedMode(spd) {
 }
 function classifyBldc(u, v, w) {
   const catOf = (val) => {
-    //if (val < 400) return '400W';
-    //if (val >= 410 && val <= 700) return '2000W';
-    //if (val > 710) return '8000W';
-    if (val > 0) return '8000W';
-    
+    if (val < 400) return '400W';
+    if (val >= 410 && val <= 700) return '2000W';
+    if (val > 710) return '8000W';
     return null;
   };
   const cu = catOf(u), cv = catOf(v), cw = catOf(w);
